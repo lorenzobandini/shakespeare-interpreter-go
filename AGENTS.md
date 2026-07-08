@@ -10,6 +10,7 @@ Phase 0 scaffolding — **no interpreter logic exists yet**:
 Target architecture (from the project plan, not yet implemented): Cobra CLI with subcommands `run`, `ast`, `tokens`, `repl`, `version`, `about`; global `--debug`/`--trace` flags; pipeline `lexer → parser → ast → runtime`; `internal/` packages with unidirectional dependencies; structured logging via `log/slog`.
 
 The authoritative SPL language reference is `docs/SPL_SPECIFICATION.md`. Read it before implementing any lexer/parser/ast/runtime logic.
+The error taxonomy (`docs/ERROR_TAXONOMY.md`) defines error codes (L001, S001, M001, R001) — use these for consistent error reporting across all phases.
 
 ## Agent workflow
 
@@ -26,6 +27,9 @@ The authoritative SPL language reference is `docs/SPL_SPECIFICATION.md`. Read it
 Use these skills during development:
 - `find-docs` — fetches current library documentation (replaces stale training data)
 - `find-skills` — discovers and installs new skills as the project grows
+- `go-test` — run and write Go tests following this project's patterns (table-driven, snapshots, fixtures)
+- `go-quality-gate` — run `task check` before completing any unit of work
+- `go-graphify` — visualize Go package dependencies and verify unidirectional architecture
 
 Additional skills can be installed via the `find-skills` skill when new needs arise (e.g., testing, Git workflows, security review).
 
