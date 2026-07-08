@@ -27,11 +27,13 @@ The error taxonomy (`docs/ERROR_TAXONOMY.md`) defines error codes (L001, S001, M
 Use these skills during development:
 - `find-docs` — fetches current library documentation (replaces stale training data)
 - `find-skills` — discovers and installs new skills as the project grows
-- `go-test` — run and write Go tests following this project's patterns (table-driven, snapshots, fixtures)
-- `go-quality-gate` — run `task check` before completing any unit of work
-- `go-graphify` — visualize Go package dependencies and verify unidirectional architecture
+- `golang-patterns` — idiomatic Go patterns, best practices, and conventions
+- `golang-testing` — table-driven tests, subtests, benchmarks, fuzzing, coverage
+- `security-review` — authentication, user input, secrets, API endpoints: checklist and patterns
+- Various superpowers skills (brainstorming, planning, reviewing, etc.) — loaded via plugin
 
-Additional skills can be installed via the `find-skills` skill when new needs arise (e.g., testing, Git workflows, security review).
+Additional skills can be installed via the `find-skills` skill when new needs arise.
+Plugins (`opencode.json`): `@dietrichgebert/ponytail` (token-efficient ruleset), `superpowers` (comprehensive agent skills).
 
 ## Commands
 
