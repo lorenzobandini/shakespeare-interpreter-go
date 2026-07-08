@@ -1,0 +1,14 @@
+version: "2"
+
+run:
+  timeout: 3m
+
+linters:
+  default: none
+  enable:
+    - errcheck     # Checks that errors are handled
+    - govet        # Standard static analysis from the compiler (replacing govetted)
+    - ineffassign  # Finds unused variable assignments
+    - staticcheck  # Advanced bug, performance, and simplicity checks (includes gosimple)
+    - unused       # Finds dead code (unused functions, constants, variables)
+    - bodyclose    # Verifies HTTP body closure

@@ -1,0 +1,35 @@
+version: '3'
+
+tasks:
+  fmt:
+    desc: Format source code and organize imports
+    cmds:
+      - gofmt -s -w .
+      - goimports -w .
+
+  lint:
+    desc: Run static analysis with golangci-lint
+    cmds:
+      - golangci-lint run ./...
+
+  vuln:
+    desc: Check for vulnerabilities in dependencies
+    cmds:
+      - govulncheck ./...
+
+  test:
+    desc: Run the test suite with race detection and coverage reporting
+    cmds:
+      - go test -v -race -coverprofile=coverage.out ./...
+
+  check:
+    desc: Run all quality gates before committing
+    deps: [fmt, lint, vuln, test]
+    cmds:
+      - echo "All checks passed successfully!"
+
+  build:
+    desc: Compile the interpreter executable for Windows
+    deps: [fmt]
+    cmds:
+      - go build -o bin/shpl.exe cmd/shpl/main.go
