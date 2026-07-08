@@ -1,0 +1,5 @@
+bin/
+.git/
+coverage.out
+Taskfile.yaml
+.golangci.yaml
