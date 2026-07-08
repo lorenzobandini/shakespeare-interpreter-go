@@ -9,6 +9,26 @@ Phase 0 scaffolding — **no interpreter logic exists yet**:
 
 Target architecture (from the project plan, not yet implemented): Cobra CLI with subcommands `run`, `ast`, `tokens`, `repl`, `version`, `about`; global `--debug`/`--trace` flags; pipeline `lexer → parser → ast → runtime`; `internal/` packages with unidirectional dependencies; structured logging via `log/slog`.
 
+The authoritative SPL language reference is `docs/SPL_SPECIFICATION.md`. Read it before implementing any lexer/parser/ast/runtime logic.
+
+## Agent workflow
+
+1. **Plan first** (Planning Agent step) — outline the strategy, model packages with Mermaid diagrams, get approval before writing code.
+2. **Scaffold** — before importing or calling a library, fetch current docs via `ctx7` (`npx ctx7@latest library <name> "<query>"`). Don't rely on training data for API signatures or version-specific config.
+3. **Implement** — write code, write tests, keep commits atomic and conventional.
+4. **Gate** — run `task check` before considering any unit of work complete. The CI runs exactly this.
+5. **Track** — after each meaningful chunk of work, update `PROGRESS.md` with what was done, what was decided, and what remains. This guards against context loss in long sessions. When context is near full, update PROGRESS.md before the next turn so the fresh session can pick up cleanly.
+6. **Commit** — each atomic change gets its own Conventional Commits message. Small, frequent commits.
+7. **Review** — before declaring a phase complete, do a self-review pass: re-read changed files, verify `task check` passes, confirm tests cover the change.
+
+## Skills
+
+Use these skills during development:
+- `find-docs` — fetches current library documentation (replaces stale training data)
+- `find-skills` — discovers and installs new skills as the project grows
+
+Additional skills can be installed via the `find-skills` skill when new needs arise (e.g., testing, Git workflows, security review).
+
 ## Commands
 
 All quality gates run through Task. The single pre-commit / CI gate is:
@@ -48,8 +68,9 @@ go test -race ./internal/lexer/...
 
 - **Design-first**: before writing execution logic, outline a step-by-step plan ("Planning Agent" step) and model package boundaries / AST / class structure with Mermaid diagrams. Don't jump straight to code.
 - **Conventional Commits** are required for all commit messages.
-- **GoDoc comments** stay inline next to code. Deep technical / grammar docs live on a separate `docs` branch (GitHub Pages), **not** in the repo root — keep `README.md` thin.
+- **GoDoc comments** stay inline next to code. Language specification lives in `docs/SPL_SPECIFICATION.md`. Keep `README.md` thin.
 - `testdata/{lexer,parser,interpreter}` is the canonical home for `.shpl` fixtures used by table-driven and snapshot tests.
+- **PROGRESS.md** in the repo root tracks completed work, open decisions, and remaining tasks. Update it after each meaningful unit of work.
 
 ## Docker
 
