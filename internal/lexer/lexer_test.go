@@ -1,6 +1,9 @@
 package lexer
 
 import (
+	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/lorenzobandini/shakespeare-interpreter-go/internal/logger"
@@ -236,4 +239,96 @@ func TestScanTokensL002NotTriggered(t *testing.T) {
 	if tokens[4].Type != TokenEOF {
 		t.Errorf("token 4: got %v, want EOF", tokens[4])
 	}
+}
+
+func TestScanFixtureHello(t *testing.T) {
+	tokens, err := readFixture("../../testdata/lexer/hello.shpl")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(tokens) == 0 {
+		t.Fatal("no tokens")
+	}
+	if tokens[len(tokens)-1].Type != TokenEOF {
+		t.Fatal("missing EOF")
+	}
+}
+
+func TestScanFixtureTruthMachine(t *testing.T) {
+	tokens, err := readFixture("../../testdata/lexer/truth-machine.shpl")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(tokens) == 0 {
+		t.Fatal("no tokens")
+	}
+}
+
+func TestScanFixtureMinimal(t *testing.T) {
+	tokens, err := readFixture("../../testdata/lexer/minimal.shpl")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(tokens) == 0 {
+		t.Fatal("no tokens")
+	}
+}
+
+func TestScanFixtureBadCharL001(t *testing.T) {
+	_, err := readFixture("../../testdata/lexer/bad-char.shpl")
+	if err == nil {
+		t.Fatal("expected L001 error")
+	}
+	lex, ok := err.(LexError)
+	if !ok {
+		t.Fatalf("expected LexError, got %T", err)
+	}
+	if lex.Code != "L001" {
+		t.Errorf("code: got %q, want L001", lex.Code)
+	}
+}
+
+func TestGoldenSnapshots(t *testing.T) {
+	fixtures := []string{"hello", "truth-machine", "minimal"}
+	for _, name := range fixtures {
+		t.Run(name, func(t *testing.T) {
+			srcPath := filepath.Join("../../testdata/lexer", name+".shpl")
+			goldenPath := filepath.Join("../../testdata/lexer", name+".golden.txt")
+			src, err := os.ReadFile(srcPath)
+			if err != nil {
+				t.Fatal(err)
+			}
+			tokens, err := New(string(src)).ScanTokens()
+			if err != nil {
+				t.Fatal(err)
+			}
+			var sb strings.Builder
+			for _, tok := range tokens {
+				sb.WriteString(tok.String())
+				sb.WriteByte('\n')
+			}
+			got := sb.String()
+			existing, err := os.ReadFile(goldenPath)
+			if err != nil {
+				if os.IsNotExist(err) {
+					if writeErr := os.WriteFile(goldenPath, []byte(got), 0o644); writeErr != nil {
+						t.Fatal(writeErr)
+					}
+					t.Fatalf("golden file %s created; inspect and re-run", goldenPath)
+				}
+				t.Fatal(err)
+			}
+			if got != string(existing) {
+				t.Errorf("golden mismatch for %s\n--- got ---\n%s\n--- want ---\n%s", name, got, string(existing))
+			}
+		})
+	}
+}
+
+func readFixture(path string) ([]Token, error) {
+	src, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+	return New(string(src)).ScanTokens()
 }

@@ -1,0 +1,128 @@
+{WORD The 1:1}
+{WORD Truth 1:5}
+{WORD Machine 1:11}
+{PERIOD . 1:18}
+{NEWLINE 
+ 1:19}
+{NEWLINE 
+ 2:1}
+{WORD Romeo 3:1}
+{COMMA , 3:6}
+{WORD a 3:8}
+{WORD young 3:10}
+{WORD man 3:16}
+{WORD with 3:20}
+{WORD a 3:25}
+{WORD remarkable 3:27}
+{WORD patience 3:38}
+{PERIOD . 3:46}
+{NEWLINE 
+ 3:47}
+{WORD Juliet 4:1}
+{COMMA , 4:7}
+{WORD a 4:9}
+{WORD likewise 4:11}
+{WORD young 4:20}
+{WORD woman 4:26}
+{WORD of 4:32}
+{WORD remarkable 4:35}
+{WORD grace 4:46}
+{PERIOD . 4:51}
+{NEWLINE 
+ 4:52}
+{NEWLINE 
+ 5:1}
+{WORD Act 6:1}
+{WORD I 6:5}
+{COLON : 6:6}
+{WORD The 6:8}
+{WORD Truth 6:12}
+{PERIOD . 6:17}
+{NEWLINE 
+ 6:18}
+{WORD Scene 7:1}
+{WORD I 7:7}
+{COLON : 7:8}
+{WORD The 7:10}
+{WORD Initialization 7:14}
+{PERIOD . 7:28}
+{NEWLINE 
+ 7:29}
+{NEWLINE 
+ 8:1}
+{LBRACKET [ 9:1}
+{WORD Enter 9:2}
+{WORD Romeo 9:8}
+{WORD and 9:14}
+{WORD Juliet 9:18}
+{RBRACKET ] 9:24}
+{NEWLINE 
+ 9:25}
+{NEWLINE 
+ 10:1}
+{WORD Scene 11:1}
+{WORD II 11:7}
+{COLON : 11:9}
+{WORD The 11:11}
+{WORD Looping 11:15}
+{WORD Heart 11:23}
+{PERIOD . 11:28}
+{NEWLINE 
+ 11:29}
+{NEWLINE 
+ 12:1}
+{WORD Romeo 13:1}
+{COLON : 13:6}
+{NEWLINE 
+ 13:7}
+{WORD Listen 14:2}
+{WORD to 14:9}
+{WORD your 14:12}
+{WORD heart 14:17}
+{BANG ! 14:22}
+{WORD Open 14:24}
+{WORD your 14:29}
+{WORD heart 14:34}
+{BANG ! 14:39}
+{NEWLINE 
+ 14:40}
+{NEWLINE 
+ 15:1}
+{WORD Juliet 16:1}
+{COLON : 16:7}
+{NEWLINE 
+ 16:8}
+{WORD Am 17:2}
+{WORD I 17:5}
+{WORD better 17:7}
+{WORD than 17:14}
+{WORD you 17:19}
+{QUESTION ? 17:22}
+{NEWLINE 
+ 17:23}
+{NEWLINE 
+ 18:1}
+{WORD Romeo 19:1}
+{COLON : 19:6}
+{NEWLINE 
+ 19:7}
+{WORD If 20:2}
+{WORD so 20:5}
+{COMMA , 20:7}
+{WORD let 20:9}
+{WORD us 20:13}
+{WORD proceed 20:16}
+{WORD to 20:24}
+{WORD scene 20:27}
+{WORD II 20:33}
+{PERIOD . 20:35}
+{NEWLINE 
+ 20:36}
+{NEWLINE 
+ 21:1}
+{LBRACKET [ 22:1}
+{WORD Exeunt 22:2}
+{RBRACKET ] 22:8}
+{NEWLINE 
+ 22:9}
+{EOF  23:1}
