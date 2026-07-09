@@ -9,8 +9,8 @@ import (
 type LogLevel int
 
 const (
-	LevelInfo LogLevel = iota // Standard production logs
-	LevelDebug                // Detailed development logs (e.g., token extraction)
+	LevelInfo  LogLevel = iota // Standard production logs
+	LevelDebug                 // Detailed development logs (e.g., token extraction)
 )
 
 // Init initializes the global slog logger with the requested verbosity.

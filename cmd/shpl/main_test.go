@@ -32,3 +32,22 @@ func TestTokensCommand(t *testing.T) {
 		t.Errorf("output missing EOF token:\n%s", output)
 	}
 }
+
+func TestASTCommand(t *testing.T) {
+	buf := &bytes.Buffer{}
+	rootCmd.SetOut(buf)
+	rootCmd.SetArgs([]string{"ast", "../../testdata/lexer/minimal.shpl"})
+	defer rootCmd.SetArgs([]string{})
+	defer rootCmd.SetOut(nil)
+
+	if err := rootCmd.Execute(); err != nil {
+		t.Fatal(err)
+	}
+	output := buf.String()
+	if !strings.Contains(output, `"Title"`) {
+		t.Errorf("output missing Title field:\n%s", output)
+	}
+	if !strings.Contains(output, `"Acts"`) {
+		t.Errorf("output missing Acts field:\n%s", output)
+	}
+}

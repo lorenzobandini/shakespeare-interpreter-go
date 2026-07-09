@@ -14,20 +14,19 @@
 - [x] AGENTS.md with agent workflow + conventions
 - [x] README.md with quick start + dev commands
 
-## Phase 1 — Lexer
+## Phase 1 — Lexer ✅
 
 Tokenize `.shpl` source into a token stream.  
 **Dependency**: `docs/SPL_SPECIFICATION.md`.
 
-- [ ] Define token types: Title, Character, Act, Scene, Enter, Exit, Exeunt, Word, Number, RomanNumeral, Punctuation, Newline, EOF, etc.
-- [ ] Implement lexer in `internal/lexer/`:
-  - `ScanToken()`, `ScanTokens()`, `Token` struct with type/lexeme/line/col
-  - Skip whitespace and comments (lines within brackets? none in SPL)
-  - Handle multi-word nouns/adjectives
-- [ ] Fixtures: `testdata/lexer/hello.shpl`, `testdata/lexer/truth-machine.shpl`
-- [ ] Tests: table-driven, snapshot (input `.shpl` → expected token stream)
-- [ ] Wire `--debug` flag to enable lexer trace logging
-- [ ] CLI subcommand: `shpl tokens <file.shpl>`
+- [x] Define token types (9 types: EOF, NEWLINE, WORD, PERIOD, COMMA, COLON, BANG, QUESTION, LBRACKET, RBRACKET)
+- [x] Implement lexer in `internal/lexer/`:
+  - `ScanTokens()`, `ScanToken()`, `Token` struct with type/lexeme/line/col
+  - Skip whitespace, emit NEWLINE tokens
+  - L001 (control chars), L002 (unterminated bracket)
+- [x] Fixtures: `testdata/lexer/{hello,truth-machine,minimal,bad-char}.shpl`
+- [x] Tests: table-driven + golden snapshot (3 golden files generated)
+- [x] CLI subcommand: `shpl tokens <file.shpl>`
 
 ### Decisions
 - [x] **Step 1.0** — Doc reconciliation complete. Cross-checked `spl_specification.md` and `error_taxonomy.md` against canonical reference (Grokipedia/Esolang). Found and corrected 10 material errors: (1) Exeunt with names is valid; (2) no-copula assignment is valid; (3) similes evaluate to the value, not 0; (4) `a vile coward` = -2; (5) stack ops `Remember`/`Recall` exist; (6) unary `square root`/`factorial` exist; (7) 7 comparative forms → 6 relations; (8) possessive pronouns are ignored like articles; (9) L001 fires only for control chars; (10) L001 example `@` is dubious (descriptions are free text). Added S017/S018 to `error_taxonomy.md`. Appended "Canonical Grammar (vetted)" section to `spl_specification.md`. Reference: `docs/superpowers/plans/2026-07-09-lexer-parser.md`.
@@ -37,22 +36,43 @@ Tokenize `.shpl` source into a token stream.
 - **`[Exeunt A and B]`** is valid (bare = exit all; named = exit those). Fix S012. (D4)
 - **L001 fires only for control characters** (0x00–0x08, 0x0B, 0x0C, 0x0E–0x1F, 0x7F). Other printable chars fold into `WORD`. (D5)
 
-### Remaining
-- Steps 1.1–1.8 (token types, scan loop, punctuation, WORD, EOF, fixtures, tests, CLI)
-
-## Phase 2 — Parser
+## Phase 2 — Parser (partial ✅)
 
 Parse token stream into AST.  
-**Dependency**: Phase 1 (lexer).
+**Dependency**: Phase 1 (lexer) ✅
 
-- [ ] Define AST node types: Program, Title, CharacterDecl, Act, Scene, EnterStmt, ExitStmt, AssignStmt, SpeakStmt, OpenStmt, IfStmt, GotoStmt, Expr (constant, binary op, similes)
-- [ ] Implement parser in `internal/parser/`:
-  - Recursive descent or Pratt parser
-  - Handle operation precedence (sum, difference, product, quotient)
-  - Nested expressions
-- [ ] Fixtures: `testdata/parser/hello.shpl`, `testdata/parser/truth-machine.shpl`
-- [ ] Tests: table-driven, snapshot (input `.shpl` → expected AST JSON)
-- [ ] CLI subcommand: `shpl ast <file.shpl>`
+- [x] Define AST node types: Program, Title, CharacterDecl, Act, Scene, EnterStmt, ExitStmt, ExeuntStmt, Dialogue, AssignStmt, SpeakStmt, OpenHeartStmt, OpenMindStmt, ListenStmt, QuestionStmt, IfStmt, GotoStmt, RememberStmt, RecallStmt, ConstExpr, CharRefExpr, PronounExpr, BinaryOpExpr, UnaryOpExpr, Comparative
+- [x] Parser errors: `ParseError` with S001–S018, `Warning` for S003
+- [x] Dictionary: curated ~80 words (nouns positive/negative, adjectives, comparatives, pronouns, articles, Shakespeare characters)
+- [x] Parser core: cursor helpers, New(), Parse()
+- [x] Parse title + character declarations (S001–S003)
+- [x] Parse acts + scenes + Roman numerals (S004–S009)
+- [x] Parse stage directions Enter/Exit/Exeunt (S010–S012)
+- [x] Parse dialogue (speaker + statement list) (S013/S014)
+- [x] Parse expressions: constants, CharRef, Pronoun (S015)
+- [x] Parse binary operations: sum, difference, product, quotient, remainder
+- [x] Parse unary operations: square, cube, square_root, factorial, twice
+- [x] Parse assignment statements (copula + no-copula)
+- [x] Parse I/O statements (Speak, Open heart, Open mind, Listen)
+- [x] Parse questions, if-statements, goto (S016, S017)
+- [x] Parse stack operations Remember/Recall (S018)
+- [x] CLI subcommand: `shpl ast <file.shpl>`
+- [x] Canonical Hello World fixture parses successfully
+- [x] Canonical Truth Machine fixture parses successfully
+
+### Key design notes (Phase 2)
+- Recursive descent parser with case-insensitive keyword matching.
+- Stage state (`enterSeen`) persists across scenes within an act (SPL semantics).
+- "the" is disambiguated as operator prefix vs. article by peeking past newlines at the next word.
+- Newlines are skipped within expressions (speech spans multiple lines) but not between sentences.
+- The simile `as <adj> as <value>` evaluates to the inner value (not 0, correcting the local spec).
+- Exeunt accepts optional names: bare = exit all; named = exit those (per canonical spec).
+- No-copula assignment `You <constant>!` is supported (per canonical Hello World).
+
+### Remaining (Phase 2)
+- [ ] Expanded table-driven unit tests for each parse method (Steps 2.5–2.15 individual tests)
+- [ ] Golden JSON snapshot tests for hello.shpl and truth-machine.shpl ASTs
+- [ ] Parser fixtures beyond lexer-shared ones (arithmetic.shpl, stack.shpl, conditionals.shpl)
 
 ### Decisions
 - *(none yet)*
