@@ -9,11 +9,15 @@ Produced by `internal/lexer`. Invalid characters or tokens at the character leve
 
 | Code | Name | Example | Message |
 |------|------|---------|---------|
-| `L001` | UnexpectedCharacter | `Romeo @ Juliet` | `unexpected character '@' at line X, col Y` |
-| `L002` | UnterminatedToken | *(if lexer finds incomplete token)* | `unterminated token starting at line X` |
+| `L001` | UnexpectedCharacter | source contains a control character (e.g. NUL, BEL) | `unexpected control character 0x%02X at line X, col Y` |
+| `L002` | UnterminatedToken | `[Enter Romeo` (no closing `]`) | `unterminated stage direction starting at line X` |
 
 SPL has very few lexical errors — the grammar is mostly words and punctuation.
-Most invalid constructs surface at the parser level.
+Most invalid constructs surface at the parser level. **L001 fires only for control
+characters** (0x00–0x08, 0x0B, 0x0C, 0x0E–0x1F, 0x7F). Other printable characters
+that are not structural punctuation fold into `WORD` tokens and surface as S-code
+parse errors. This allows character descriptions to contain free-text punctuation
+(e.g., `A/S` in `Hamlet, the flatterer of Andersen Insulting A/S.`).
 
 ## Level 2 — Syntax Errors
 
@@ -32,11 +36,19 @@ Produced by `internal/parser`. Valid tokens in invalid arrangement.
 | `S009` | SceneOrder | `Scene III:` after `Scene I:` | `scene numbers must be sequential` |
 | `S010` | MissingEnter | Character speaks without `[Enter ...]` | `character 'Romeo' must enter before speaking` |
 | `S011` | InvalidEnter | `[Enter]` with no character | `expected character name after 'Enter'` |
-| `S012` | InvalidExeunt | `[Exeunt Romeo]` — Exeunt takes no args | `'Exeunt' must stand alone, use 'Exit' for single character` |
+| `S012` | InvalidExeunt | `[Exeunt ,]` (malformed Exeunt args) | `expected character name or ']' after 'Exeunt'` |
 | `S013` | MissingStage | Dialogue without `[Enter ...]` | `expected [Enter ...] before dialogue` |
 | `S014` | MissingSpeaker | Line without `Name:` prefix | `expected character name followed by ':'` |
-| `S015` | InvalidExpression | `You are the sum of` (incomplete) | `expected expression after 'sum of'` |
-| `S016` | InvalidIf | `If so, let us proceed to scene` (missing scene) | `expected scene number after 'proceed to scene'` |
+| `S015` | InvalidExpression | `You are the sum of` (incomplete) | `expected expression` |
+| `S016` | InvalidIf | `If so, let us proceed to scene` (missing scene) | `expected scene or act number after 'proceed to'` |
+| `S017` | InvalidComparative | `Am I good you?` (missing `as`/`than`) | `expected comparative phrase (e.g., 'as good as', 'better than')` |
+| `S018` | InvalidStackOp | `Remember .` (no expression) or `Recall your fate` (no `.`) | `expected expression after 'Remember'` / `expected '.' after 'Recall'` |
+
+> **Note on S012 (Exeunt):** Both bare `[Exeunt]` (exits all characters on stage) and
+> `[Exeunt A and B]` (exits the named characters) are valid SPL. S012 fires only for
+> *malformed* Exeunt syntax (e.g., `[Exeunt ,]` or `[Exeunt and]`). This is the
+> canonical SPL behavior confirmed against the official Hello World Program, which
+> contains `[Exeunt Ophelia and Hamlet]`.
 
 ## Level 3 — Semantic Errors
 

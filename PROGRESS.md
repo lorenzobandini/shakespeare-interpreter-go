@@ -30,10 +30,15 @@ Tokenize `.shpl` source into a token stream.
 - [ ] CLI subcommand: `shpl tokens <file.shpl>`
 
 ### Decisions
-- *(none yet)*
+- [x] **Step 1.0** — Doc reconciliation complete. Cross-checked `spl_specification.md` and `error_taxonomy.md` against canonical reference (Grokipedia/Esolang). Found and corrected 10 material errors: (1) Exeunt with names is valid; (2) no-copula assignment is valid; (3) similes evaluate to the value, not 0; (4) `a vile coward` = -2; (5) stack ops `Remember`/`Recall` exist; (6) unary `square root`/`factorial` exist; (7) 7 comparative forms → 6 relations; (8) possessive pronouns are ignored like articles; (9) L001 fires only for control chars; (10) L001 example `@` is dubious (descriptions are free text). Added S017/S018 to `error_taxonomy.md`. Appended "Canonical Grammar (vetted)" section to `spl_specification.md`. Reference: `docs/superpowers/plans/2026-07-09-lexer-parser.md`.
+- Token types: **9 types** (EOF, NEWLINE, WORD, PERIOD, COMMA, COLON, BANG, QUESTION, LBRACKET, RBRACKET). Dropped `Number`/`RomanNumeral`/`Title`/`Character` — these are parser-side classifications, not lexical tokens. (D10)
+- Lexer is **deliberately dumb**: emits generic `WORD` for all words (including `Act`, `Scene`, `Enter`, `You`, `Romeo`, nouns, adjectives). Parser classifies by value + declared character names. (D1)
+- **Case-insensitive** classification; preserve original `Lexeme` on the token. (D2)
+- **`[Exeunt A and B]`** is valid (bare = exit all; named = exit those). Fix S012. (D4)
+- **L001 fires only for control characters** (0x00–0x08, 0x0B, 0x0C, 0x0E–0x1F, 0x7F). Other printable chars fold into `WORD`. (D5)
 
 ### Remaining
-- Full lexer implementation + tests
+- Steps 1.1–1.8 (token types, scan loop, punctuation, WORD, EOF, fixtures, tests, CLI)
 
 ## Phase 2 — Parser
 
