@@ -22,12 +22,12 @@ type Expr interface {
 
 // Program is the root AST node.
 type Program struct {
-	Title      Title
-	Characters []CharacterDecl
-	Acts       []Act
-	Warnings   []Warning
-	Line       int
-	Col        int
+	Title      Title           `json:"title"`
+	Characters []CharacterDecl `json:"characters"`
+	Acts       []Act           `json:"acts"`
+	Warnings   []Warning       `json:"warnings"`
+	Line       int             `json:"line"`
+	Col        int             `json:"col"`
 }
 
 func (p *Program) Pos() (int, int) { return p.Line, p.Col }
@@ -38,9 +38,9 @@ func (p *Program) String() string {
 
 // Title is the play title (first line, everything before the terminating '.').
 type Title struct {
-	Text string
-	Line int
-	Col  int
+	Text string `json:"text"`
+	Line int    `json:"line"`
+	Col  int    `json:"col"`
 }
 
 func (t Title) Pos() (int, int) { return t.Line, t.Col }
@@ -48,10 +48,10 @@ func (t Title) String() string  { return fmt.Sprintf("Title{%q}", t.Text) }
 
 // CharacterDecl is a Dramatis Personae entry.
 type CharacterDecl struct {
-	Name        string
-	Description string
-	Line        int
-	Col         int
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Line        int    `json:"line"`
+	Col         int    `json:"col"`
 }
 
 func (c CharacterDecl) Pos() (int, int) { return c.Line, c.Col }
@@ -61,12 +61,12 @@ func (c CharacterDecl) String() string {
 
 // Act is an act header.
 type Act struct {
-	Number       int
-	RomanNumeral string
-	Description  string
-	Scenes       []Scene
-	Line         int
-	Col          int
+	Number       int     `json:"number"`
+	RomanNumeral string  `json:"roman_numeral"`
+	Description  string  `json:"description"`
+	Scenes       []Scene `json:"scenes"`
+	Line         int     `json:"line"`
+	Col          int     `json:"col"`
 }
 
 func (a Act) Pos() (int, int) { return a.Line, a.Col }
@@ -76,12 +76,12 @@ func (a Act) String() string {
 
 // Scene is a scene header + its statements.
 type Scene struct {
-	Number       int
-	RomanNumeral string
-	Description  string
-	Statements   []Statement
-	Line         int
-	Col          int
+	Number       int         `json:"number"`
+	RomanNumeral string      `json:"roman_numeral"`
+	Description  string      `json:"description"`
+	Statements   []Statement `json:"statements"`
+	Line         int         `json:"line"`
+	Col          int         `json:"col"`
 }
 
 func (s Scene) Pos() (int, int) { return s.Line, s.Col }
@@ -91,9 +91,9 @@ func (s Scene) String() string {
 
 // EnterStmt: [Enter A] or [Enter A and B]
 type EnterStmt struct {
-	Characters []string
-	Line       int
-	Col        int
+	Characters []string `json:"characters"`
+	Line       int      `json:"line"`
+	Col        int      `json:"col"`
 }
 
 func (s EnterStmt) Pos() (int, int) { return s.Line, s.Col }
@@ -104,9 +104,9 @@ func (EnterStmt) stmtNode() {}
 
 // ExitStmt: [Exit A]
 type ExitStmt struct {
-	Character string
-	Line      int
-	Col       int
+	Character string `json:"character"`
+	Line      int    `json:"line"`
+	Col       int    `json:"col"`
 }
 
 func (s ExitStmt) Pos() (int, int) { return s.Line, s.Col }
@@ -115,9 +115,9 @@ func (ExitStmt) stmtNode()         {}
 
 // ExeuntStmt: [Exeunt] (nil = all) or [Exeunt A and B]
 type ExeuntStmt struct {
-	Characters []string
-	Line       int
-	Col        int
+	Characters []string `json:"characters"`
+	Line       int      `json:"line"`
+	Col        int      `json:"col"`
 }
 
 func (s ExeuntStmt) Pos() (int, int) { return s.Line, s.Col }
@@ -128,10 +128,10 @@ func (ExeuntStmt) stmtNode() {}
 
 // Dialogue is a speaker turn containing multiple statements.
 type Dialogue struct {
-	Speaker    string
-	Statements []Statement
-	Line       int
-	Col        int
+	Speaker    string      `json:"speaker"`
+	Statements []Statement `json:"statements"`
+	Line       int         `json:"line"`
+	Col        int         `json:"col"`
 }
 
 func (d Dialogue) Pos() (int, int) { return d.Line, d.Col }
@@ -142,12 +142,12 @@ func (Dialogue) stmtNode() {}
 
 // AssignStmt: "You are [as ADJ as] <expr>." or "You <constant>!" (no copula).
 type AssignStmt struct {
-	Target     string
-	SimileAdj  string
-	Expr       Expr
-	Terminator string
-	Line       int
-	Col        int
+	Target     string `json:"target"`
+	SimileAdj  string `json:"simile_adj"`
+	Expr       Expr   `json:"expr"`
+	Terminator string `json:"terminator"`
+	Line       int    `json:"line"`
+	Col        int    `json:"col"`
 }
 
 func (s AssignStmt) Pos() (int, int) { return s.Line, s.Col }
@@ -159,9 +159,9 @@ func (AssignStmt) stmtNode() {}
 
 // SpeakStmt: "Speak your/thy mind." — output ASCII of listener.
 type SpeakStmt struct {
-	Terminator string
-	Line       int
-	Col        int
+	Terminator string `json:"terminator"`
+	Line       int    `json:"line"`
+	Col        int    `json:"col"`
 }
 
 func (s SpeakStmt) Pos() (int, int) { return s.Line, s.Col }
@@ -170,9 +170,9 @@ func (SpeakStmt) stmtNode()         {}
 
 // OpenHeartStmt: "Open your/thy heart." — output numeric of listener.
 type OpenHeartStmt struct {
-	Terminator string
-	Line       int
-	Col        int
+	Terminator string `json:"terminator"`
+	Line       int    `json:"line"`
+	Col        int    `json:"col"`
 }
 
 func (s OpenHeartStmt) Pos() (int, int) { return s.Line, s.Col }
@@ -181,9 +181,9 @@ func (OpenHeartStmt) stmtNode()         {}
 
 // OpenMindStmt: "Open your/thy mind." — read ASCII char into listener.
 type OpenMindStmt struct {
-	Terminator string
-	Line       int
-	Col        int
+	Terminator string `json:"terminator"`
+	Line       int    `json:"line"`
+	Col        int    `json:"col"`
 }
 
 func (s OpenMindStmt) Pos() (int, int) { return s.Line, s.Col }
@@ -192,9 +192,9 @@ func (OpenMindStmt) stmtNode()         {}
 
 // ListenStmt: "Listen to your/thy heart." — read number into listener.
 type ListenStmt struct {
-	Terminator string
-	Line       int
-	Col        int
+	Terminator string `json:"terminator"`
+	Line       int    `json:"line"`
+	Col        int    `json:"col"`
 }
 
 func (s ListenStmt) Pos() (int, int) { return s.Line, s.Col }
@@ -203,11 +203,11 @@ func (ListenStmt) stmtNode()         {}
 
 // QuestionStmt: "Am I/Is X <comparative> Y?" — sets comparison flag.
 type QuestionStmt struct {
-	Left        Expr
-	Comparative Comparative
-	Right       Expr
-	Line        int
-	Col         int
+	Left        Expr        `json:"left"`
+	Comparative Comparative `json:"comparative"`
+	Right       Expr        `json:"right"`
+	Line        int         `json:"line"`
+	Col         int         `json:"col"`
 }
 
 func (s QuestionStmt) Pos() (int, int) { return s.Line, s.Col }
@@ -218,12 +218,12 @@ func (QuestionStmt) stmtNode() {}
 
 // Comparative represents a comparative phrase (7 forms → 6 relations).
 type Comparative struct {
-	Form      string // "as-as" or "than"
-	Adjective string
-	Negated   bool
-	Relation  string // "equal", "not_equal", "greater", "less", "greater_or_equal", "less_or_equal"
-	Line      int
-	Col       int
+	Form      string `json:"form"`
+	Adjective string `json:"adjective"`
+	Negated   bool   `json:"negated"`
+	Relation  string `json:"relation"`
+	Line      int    `json:"line"`
+	Col       int    `json:"col"`
 }
 
 func (c Comparative) Pos() (int, int) { return c.Line, c.Col }
@@ -238,13 +238,13 @@ func (c Comparative) String() string {
 	return fmt.Sprintf("%s%s than(%s)", neg, c.Adjective, c.Relation)
 }
 
-// IfStmt: "If so/not, let us proceed/return to scene/act X."
+// IfStmt: "If so/not, let us proceed/return to scene/act X." (conditional).
 type IfStmt struct {
-	BranchIfTrue bool
-	Target       string
-	TargetKind   string // "scene" or "act"
-	Line         int
-	Col          int
+	BranchIfTrue bool   `json:"branch_if_true"`
+	Target       string `json:"target"`
+	TargetKind   string `json:"target_kind"`
+	Line         int    `json:"line"`
+	Col          int    `json:"col"`
 }
 
 func (s IfStmt) Pos() (int, int) { return s.Line, s.Col }
@@ -259,10 +259,10 @@ func (IfStmt) stmtNode() {}
 
 // GotoStmt: "Let us proceed/return to scene/act X." (unconditional).
 type GotoStmt struct {
-	Target     string
-	TargetKind string // "scene" or "act"
-	Line       int
-	Col        int
+	Target     string `json:"target"`
+	TargetKind string `json:"target_kind"`
+	Line       int    `json:"line"`
+	Col        int    `json:"col"`
 }
 
 func (s GotoStmt) Pos() (int, int) { return s.Line, s.Col }
@@ -273,9 +273,9 @@ func (GotoStmt) stmtNode() {}
 
 // RememberStmt: "Remember <expr>." — push onto listener's stack.
 type RememberStmt struct {
-	Expr Expr
-	Line int
-	Col  int
+	Expr Expr `json:"expr"`
+	Line int  `json:"line"`
+	Col  int  `json:"col"`
 }
 
 func (s RememberStmt) Pos() (int, int) { return s.Line, s.Col }
@@ -284,9 +284,9 @@ func (RememberStmt) stmtNode()         {}
 
 // RecallStmt: "Recall <ignored text>." — pop listener's stack into speaker.
 type RecallStmt struct {
-	IgnoredText string
-	Line        int
-	Col         int
+	IgnoredText string `json:"ignored_text"`
+	Line        int    `json:"line"`
+	Col         int    `json:"col"`
 }
 
 func (s RecallStmt) Pos() (int, int) { return s.Line, s.Col }
@@ -295,11 +295,11 @@ func (RecallStmt) stmtNode()         {}
 
 // ConstExpr: article? adjective* noun. Value = Polarity × 2^AdjectiveCount.
 type ConstExpr struct {
-	AdjectiveCount int
-	Noun           string
-	Polarity       int // +1 or -1
-	Line           int
-	Col            int
+	AdjectiveCount int    `json:"adjective_count"`
+	Noun           string `json:"noun"`
+	Polarity       int    `json:"polarity"`
+	Line           int    `json:"line"`
+	Col            int    `json:"col"`
 }
 
 func (e ConstExpr) Pos() (int, int) { return e.Line, e.Col }
@@ -310,9 +310,9 @@ func (ConstExpr) exprNode() {}
 
 // CharRefExpr: reference to a declared character.
 type CharRefExpr struct {
-	Name string
-	Line int
-	Col  int
+	Name string `json:"name"`
+	Line int    `json:"line"`
+	Col  int    `json:"col"`
 }
 
 func (e CharRefExpr) Pos() (int, int) { return e.Line, e.Col }
@@ -321,9 +321,9 @@ func (CharRefExpr) exprNode()         {}
 
 // PronounExpr: "speaker" or "listener" reference.
 type PronounExpr struct {
-	Ref  string // "speaker" or "listener"
-	Line int
-	Col  int
+	Ref  string `json:"ref"`
+	Line int    `json:"line"`
+	Col  int    `json:"col"`
 }
 
 func (e PronounExpr) Pos() (int, int) { return e.Line, e.Col }
@@ -332,11 +332,11 @@ func (PronounExpr) exprNode()         {}
 
 // BinaryOpExpr: sum, difference, product, quotient, remainder.
 type BinaryOpExpr struct {
-	Op    string // "sum", "difference", "product", "quotient", "remainder"
-	Left  Expr
-	Right Expr
-	Line  int
-	Col   int
+	Op    string `json:"op"`
+	Left  Expr   `json:"left"`
+	Right Expr   `json:"right"`
+	Line  int    `json:"line"`
+	Col   int    `json:"col"`
 }
 
 func (e BinaryOpExpr) Pos() (int, int) { return e.Line, e.Col }
@@ -347,10 +347,10 @@ func (BinaryOpExpr) exprNode() {}
 
 // UnaryOpExpr: square, cube, square_root, factorial, twice.
 type UnaryOpExpr struct {
-	Op      string
-	Operand Expr
-	Line    int
-	Col     int
+	Op      string `json:"op"`
+	Operand Expr   `json:"operand"`
+	Line    int    `json:"line"`
+	Col     int    `json:"col"`
 }
 
 func (e UnaryOpExpr) Pos() (int, int) { return e.Line, e.Col }

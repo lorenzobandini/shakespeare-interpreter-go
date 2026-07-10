@@ -44,10 +44,10 @@ func TestASTCommand(t *testing.T) {
 		t.Fatal(err)
 	}
 	output := buf.String()
-	if !strings.Contains(output, `"Title"`) {
-		t.Errorf("output missing Title field:\n%s", output)
+	if !strings.Contains(output, `"title"`) {
+		t.Errorf("output missing title field:\n%s", output)
 	}
-	if !strings.Contains(output, `"Acts"`) {
-		t.Errorf("output missing Acts field:\n%s", output)
+	if !strings.Contains(output, `"acts"`) {
+		t.Errorf("output missing acts field:\n%s", output)
 	}
 }
