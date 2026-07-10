@@ -528,9 +528,6 @@ func (p *Parser) expectTerminator() (string, error) {
 	if p.match(lexer.TokenBang) {
 		return "!", nil
 	}
-	if p.match(lexer.TokenQuestion) {
-		return "?", nil
-	}
 	return "", errInvalidExpression(line, col)
 }
 
@@ -621,7 +618,7 @@ func (p *Parser) parseRecallStmt() (Statement, error) {
 	firstCol := p.peek().Col
 	p.advance() // consume "recall"
 	var parts []string
-	for !p.isEOF() && !p.at(lexer.TokenPeriod) && !p.at(lexer.TokenBang) && !p.at(lexer.TokenQuestion) {
+	for !p.isEOF() && !p.at(lexer.TokenPeriod) {
 		parts = append(parts, p.advance().Lexeme)
 	}
 	if p.peek().Type != lexer.TokenPeriod {
@@ -746,7 +743,11 @@ func (p *Parser) parseIfStmt() (Statement, error) {
 	if !p.matchWord("us") {
 		return nil, errInvalidIf(firstLine, firstCol)
 	}
-	return p.parseGotoBody(firstLine, firstCol, branchIfTrue)
+	target, targetKind, err := p.parseGotoTarget(firstLine, firstCol)
+	if err != nil {
+		return nil, err
+	}
+	return IfStmt{BranchIfTrue: branchIfTrue, Target: target, TargetKind: targetKind, Line: firstLine, Col: firstCol}, nil
 }
 
 // parseGotoStmt: "Let us proceed/return to scene/act X."
@@ -757,35 +758,36 @@ func (p *Parser) parseGotoStmt() (Statement, error) {
 	if !p.matchWord("us") {
 		return nil, errInvalidIf(firstLine, firstCol)
 	}
-	return p.parseGotoBody(firstLine, firstCol, true)
+	target, targetKind, err := p.parseGotoTarget(firstLine, firstCol)
+	if err != nil {
+		return nil, err
+	}
+	return GotoStmt{Target: target, TargetKind: targetKind, Line: firstLine, Col: firstCol}, nil
 }
 
-func (p *Parser) parseGotoBody(line, col int, branchIfTrue bool) (Statement, error) {
+func (p *Parser) parseGotoTarget(line, col int) (string, string, error) {
 	if !p.matchWord("proceed") && !p.matchWord("return") {
-		return nil, errInvalidIf(line, col)
+		return "", "", errInvalidIf(line, col)
 	}
 	if !p.matchWord("to") {
-		return nil, errInvalidIf(line, col)
+		return "", "", errInvalidIf(line, col)
 	}
-	targetKind := ""
+	var targetKind string
 	if p.matchWord("scene") {
 		targetKind = "scene"
 	} else if p.matchWord("act") {
 		targetKind = "act"
 	} else {
-		return nil, errInvalidIf(line, col)
+		return "", "", errInvalidIf(line, col)
 	}
 	if p.peek().Type != lexer.TokenWord {
-		return nil, errInvalidIf(line, col)
+		return "", "", errInvalidIf(line, col)
 	}
 	target := p.advance().Lexeme
 	if !p.match(lexer.TokenPeriod) {
-		return nil, errInvalidIf(line, col)
+		return "", "", errInvalidIf(line, col)
 	}
-	if branchIfTrue {
-		return IfStmt{BranchIfTrue: true, Target: target, TargetKind: targetKind, Line: line, Col: col}, nil
-	}
-	return IfStmt{BranchIfTrue: false, Target: target, TargetKind: targetKind, Line: line, Col: col}, nil
+	return target, targetKind, nil
 }
 
 // parseExpr: dispatch by leading token. Skips leading newlines.
@@ -798,10 +800,11 @@ func (p *Parser) parseExpr() (Expr, error) {
 	if word == "the" {
 		// Peek past any newlines to find the next significant word.
 		// If it's an operator keyword, treat "the" as operator prefix.
-		next := p.peekAt(1)
-		for next.Type == lexer.TokenNewline && p.pos+2 < len(p.tokens) {
-			next = p.tokens[p.pos+2]
+		offset := 1
+		for p.peekAt(offset).Type == lexer.TokenNewline {
+			offset++
 		}
+		next := p.peekAt(offset)
 		if next.Type == lexer.TokenWord && isOpKeyword(lower(next.Lexeme)) {
 			return p.parseBinaryOrUnaryOp()
 		}
@@ -820,18 +823,18 @@ func (p *Parser) parseExpr() (Expr, error) {
 		return p.parseSimileInExpr()
 	}
 	if isSpeakerPronoun(word) {
-		p.advance()
 		line, col := p.peek().Line, p.peek().Col
+		p.advance()
 		return PronounExpr{Ref: "speaker", Line: line, Col: col}, nil
 	}
 	if isListenerPronoun(word) {
-		p.advance()
 		line, col := p.peek().Line, p.peek().Col
+		p.advance()
 		return PronounExpr{Ref: "listener", Line: line, Col: col}, nil
 	}
 	if p.characters[word] {
-		name := p.advance().Lexeme
 		line, col := p.peek().Line, p.peek().Col
+		name := p.advance().Lexeme
 		return CharRefExpr{Name: name, Line: line, Col: col}, nil
 	}
 	return p.parseConstant()
