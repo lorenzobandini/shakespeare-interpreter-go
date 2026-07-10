@@ -1,0 +1,106 @@
+{
+  "title": {
+    "text": "The Stack Test",
+    "line": 1,
+    "col": 1
+  },
+  "characters": [
+    {
+      "name": "Romeo",
+      "description": "a young man",
+      "line": 3,
+      "col": 1
+    },
+    {
+      "name": "Juliet",
+      "description": "a young woman",
+      "line": 4,
+      "col": 1
+    }
+  ],
+  "acts": [
+    {
+      "number": 1,
+      "roman_numeral": "I",
+      "description": "Stack",
+      "scenes": [
+        {
+          "number": 1,
+          "roman_numeral": "I",
+          "description": "Push and Pop",
+          "statements": [
+            {
+              "characters": [
+                "Romeo",
+                "Juliet"
+              ],
+              "line": 9,
+              "col": 1
+            },
+            {
+              "speaker": "Romeo",
+              "statements": [
+                {
+                  "target": "you",
+                  "simile_adj": "good",
+                  "expr": {
+                    "adjective_count": 0,
+                    "noun": "flower",
+                    "polarity": 1,
+                    "line": 12,
+                    "col": 20
+                  },
+                  "terminator": ".",
+                  "line": 12,
+                  "col": 1
+                },
+                {
+                  "expr": {
+                    "ref": "speaker",
+                    "line": 13,
+                    "col": 10
+                  },
+                  "line": 13,
+                  "col": 1
+                },
+                {
+                  "target": "you",
+                  "simile_adj": "good",
+                  "expr": {
+                    "adjective_count": 0,
+                    "noun": "coward",
+                    "polarity": -1,
+                    "line": 14,
+                    "col": 20
+                  },
+                  "terminator": ".",
+                  "line": 14,
+                  "col": 1
+                },
+                {
+                  "ignored_text": "your fate",
+                  "line": 15,
+                  "col": 1
+                }
+              ],
+              "line": 11,
+              "col": 1
+            },
+            {
+              "characters": null,
+              "line": 17,
+              "col": 1
+            }
+          ],
+          "line": 7,
+          "col": 1
+        }
+      ],
+      "line": 6,
+      "col": 1
+    }
+  ],
+  "warnings": null,
+  "line": 18,
+  "col": 1
+}

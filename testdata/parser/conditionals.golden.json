@@ -1,0 +1,295 @@
+{
+  "title": {
+    "text": "The Conditional Test",
+    "line": 1,
+    "col": 1
+  },
+  "characters": [
+    {
+      "name": "Romeo",
+      "description": "a young man",
+      "line": 3,
+      "col": 1
+    },
+    {
+      "name": "Juliet",
+      "description": "a young woman",
+      "line": 4,
+      "col": 1
+    }
+  ],
+  "acts": [
+    {
+      "number": 1,
+      "roman_numeral": "I",
+      "description": "Conditionals",
+      "scenes": [
+        {
+          "number": 1,
+          "roman_numeral": "I",
+          "description": "All forms",
+          "statements": [
+            {
+              "characters": [
+                "Romeo",
+                "Juliet"
+              ],
+              "line": 9,
+              "col": 1
+            },
+            {
+              "speaker": "Juliet",
+              "statements": [
+                {
+                  "left": {
+                    "ref": "speaker",
+                    "line": 12,
+                    "col": 1
+                  },
+                  "comparative": {
+                    "form": "as-as",
+                    "adjective": "good",
+                    "negated": false,
+                    "relation": "equal",
+                    "line": 12,
+                    "col": 6
+                  },
+                  "right": {
+                    "ref": "listener",
+                    "line": 12,
+                    "col": 1
+                  },
+                  "line": 12,
+                  "col": 1
+                },
+                {
+                  "left": {
+                    "ref": "speaker",
+                    "line": 13,
+                    "col": 1
+                  },
+                  "comparative": {
+                    "form": "as-as",
+                    "adjective": "bad",
+                    "negated": false,
+                    "relation": "not_equal",
+                    "line": 13,
+                    "col": 6
+                  },
+                  "right": {
+                    "ref": "listener",
+                    "line": 13,
+                    "col": 1
+                  },
+                  "line": 13,
+                  "col": 1
+                },
+                {
+                  "left": {
+                    "ref": "speaker",
+                    "line": 14,
+                    "col": 1
+                  },
+                  "comparative": {
+                    "form": "than",
+                    "adjective": "better",
+                    "negated": false,
+                    "relation": "greater",
+                    "line": 14,
+                    "col": 6
+                  },
+                  "right": {
+                    "ref": "listener",
+                    "line": 14,
+                    "col": 1
+                  },
+                  "line": 14,
+                  "col": 1
+                },
+                {
+                  "left": {
+                    "ref": "speaker",
+                    "line": 15,
+                    "col": 1
+                  },
+                  "comparative": {
+                    "form": "than",
+                    "adjective": "worse",
+                    "negated": false,
+                    "relation": "less",
+                    "line": 15,
+                    "col": 6
+                  },
+                  "right": {
+                    "ref": "listener",
+                    "line": 15,
+                    "col": 1
+                  },
+                  "line": 15,
+                  "col": 1
+                },
+                {
+                  "left": {
+                    "ref": "speaker",
+                    "line": 16,
+                    "col": 1
+                  },
+                  "comparative": {
+                    "form": "as-as",
+                    "adjective": "good",
+                    "negated": true,
+                    "relation": "not_equal",
+                    "line": 16,
+                    "col": 6
+                  },
+                  "right": {
+                    "ref": "listener",
+                    "line": 16,
+                    "col": 1
+                  },
+                  "line": 16,
+                  "col": 1
+                },
+                {
+                  "left": {
+                    "ref": "speaker",
+                    "line": 17,
+                    "col": 1
+                  },
+                  "comparative": {
+                    "form": "than",
+                    "adjective": "better",
+                    "negated": true,
+                    "relation": "less_or_equal",
+                    "line": 17,
+                    "col": 6
+                  },
+                  "right": {
+                    "ref": "listener",
+                    "line": 17,
+                    "col": 1
+                  },
+                  "line": 17,
+                  "col": 1
+                },
+                {
+                  "left": {
+                    "ref": "speaker",
+                    "line": 18,
+                    "col": 1
+                  },
+                  "comparative": {
+                    "form": "than",
+                    "adjective": "worse",
+                    "negated": true,
+                    "relation": "greater_or_equal",
+                    "line": 18,
+                    "col": 6
+                  },
+                  "right": {
+                    "ref": "listener",
+                    "line": 18,
+                    "col": 1
+                  },
+                  "line": 18,
+                  "col": 1
+                },
+                {
+                  "left": {
+                    "name": "Romeo",
+                    "line": 19,
+                    "col": 4
+                  },
+                  "comparative": {
+                    "form": "as-as",
+                    "adjective": "good",
+                    "negated": false,
+                    "relation": "equal",
+                    "line": 19,
+                    "col": 10
+                  },
+                  "right": {
+                    "name": "Juliet",
+                    "line": 19,
+                    "col": 21
+                  },
+                  "line": 19,
+                  "col": 1
+                },
+                {
+                  "left": {
+                    "name": "Juliet",
+                    "line": 20,
+                    "col": 4
+                  },
+                  "comparative": {
+                    "form": "than",
+                    "adjective": "better",
+                    "negated": false,
+                    "relation": "greater",
+                    "line": 20,
+                    "col": 11
+                  },
+                  "right": {
+                    "name": "Romeo",
+                    "line": 20,
+                    "col": 23
+                  },
+                  "line": 20,
+                  "col": 1
+                }
+              ],
+              "line": 11,
+              "col": 1
+            },
+            {
+              "speaker": "Romeo",
+              "statements": [
+                {
+                  "branch_if_true": true,
+                  "target": "I",
+                  "target_kind": "scene",
+                  "line": 23,
+                  "col": 1
+                },
+                {
+                  "branch_if_true": false,
+                  "target": "I",
+                  "target_kind": "scene",
+                  "line": 24,
+                  "col": 1
+                },
+                {
+                  "target": "II",
+                  "target_kind": "scene",
+                  "line": 25,
+                  "col": 1
+                },
+                {
+                  "target": "I",
+                  "target_kind": "act",
+                  "line": 26,
+                  "col": 1
+                }
+              ],
+              "line": 22,
+              "col": 1
+            },
+            {
+              "characters": null,
+              "line": 28,
+              "col": 1
+            }
+          ],
+          "line": 7,
+          "col": 1
+        }
+      ],
+      "line": 6,
+      "col": 1
+    }
+  ],
+  "warnings": null,
+  "line": 29,
+  "col": 1
+}

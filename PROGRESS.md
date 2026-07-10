@@ -70,9 +70,10 @@ Parse token stream into AST.
 - No-copula assignment `You <constant>!` is supported (per canonical Hello World).
 
 ### Remaining (Phase 2)
-- [ ] Expanded table-driven unit tests for each parse method (Steps 2.5–2.15 individual tests)
-- [ ] Golden JSON snapshot tests for hello.shpl and truth-machine.shpl ASTs
-- [ ] Parser fixtures beyond lexer-shared ones (arithmetic.shpl, stack.shpl, conditionals.shpl)
+- [x] Expanded table-driven unit tests for each parse method
+- [x] Golden JSON snapshot tests for all 6 parser fixtures
+- [x] Parser fixtures: arithmetic.shpl, stack.shpl, conditionals.shpl + error fixtures
+- [x] Error fixture tests for S002, S005, S008, S013, S017
 
 ### Decisions
 - *(none yet)*

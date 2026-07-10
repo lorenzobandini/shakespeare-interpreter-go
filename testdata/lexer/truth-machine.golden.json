@@ -1,0 +1,126 @@
+{
+  "title": {
+    "text": "The Truth Machine",
+    "line": 1,
+    "col": 1
+  },
+  "characters": [
+    {
+      "name": "Romeo",
+      "description": "a young man with a remarkable patience",
+      "line": 3,
+      "col": 1
+    },
+    {
+      "name": "Juliet",
+      "description": "a likewise young woman of remarkable grace",
+      "line": 4,
+      "col": 1
+    }
+  ],
+  "acts": [
+    {
+      "number": 1,
+      "roman_numeral": "I",
+      "description": "The Truth",
+      "scenes": [
+        {
+          "number": 1,
+          "roman_numeral": "I",
+          "description": "The Initialization",
+          "statements": [
+            {
+              "characters": [
+                "Romeo",
+                "Juliet"
+              ],
+              "line": 9,
+              "col": 1
+            }
+          ],
+          "line": 7,
+          "col": 1
+        },
+        {
+          "number": 2,
+          "roman_numeral": "II",
+          "description": "The Looping Heart",
+          "statements": [
+            {
+              "speaker": "Romeo",
+              "statements": [
+                {
+                  "terminator": "!",
+                  "line": 14,
+                  "col": 2
+                },
+                {
+                  "terminator": "!",
+                  "line": 14,
+                  "col": 24
+                }
+              ],
+              "line": 13,
+              "col": 1
+            },
+            {
+              "speaker": "Juliet",
+              "statements": [
+                {
+                  "left": {
+                    "ref": "speaker",
+                    "line": 17,
+                    "col": 2
+                  },
+                  "comparative": {
+                    "form": "than",
+                    "adjective": "better",
+                    "negated": false,
+                    "relation": "greater",
+                    "line": 17,
+                    "col": 7
+                  },
+                  "right": {
+                    "ref": "listener",
+                    "line": 17,
+                    "col": 2
+                  },
+                  "line": 17,
+                  "col": 2
+                }
+              ],
+              "line": 16,
+              "col": 1
+            },
+            {
+              "speaker": "Romeo",
+              "statements": [
+                {
+                  "branch_if_true": true,
+                  "target": "II",
+                  "target_kind": "scene",
+                  "line": 20,
+                  "col": 2
+                }
+              ],
+              "line": 19,
+              "col": 1
+            },
+            {
+              "characters": null,
+              "line": 22,
+              "col": 1
+            }
+          ],
+          "line": 11,
+          "col": 1
+        }
+      ],
+      "line": 6,
+      "col": 1
+    }
+  ],
+  "warnings": null,
+  "line": 23,
+  "col": 1
+}

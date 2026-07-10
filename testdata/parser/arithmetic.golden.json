@@ -1,0 +1,341 @@
+{
+  "title": {
+    "text": "The Arithmetic Test",
+    "line": 1,
+    "col": 1
+  },
+  "characters": [
+    {
+      "name": "Romeo",
+      "description": "a young man",
+      "line": 3,
+      "col": 1
+    },
+    {
+      "name": "Juliet",
+      "description": "a young woman",
+      "line": 4,
+      "col": 1
+    }
+  ],
+  "acts": [
+    {
+      "number": 1,
+      "roman_numeral": "I",
+      "description": "Arithmetic",
+      "scenes": [
+        {
+          "number": 1,
+          "roman_numeral": "I",
+          "description": "Operations",
+          "statements": [
+            {
+              "characters": [
+                "Romeo",
+                "Juliet"
+              ],
+              "line": 9,
+              "col": 1
+            },
+            {
+              "speaker": "Juliet",
+              "statements": [
+                {
+                  "target": "you",
+                  "simile_adj": "good",
+                  "expr": {
+                    "adjective_count": 0,
+                    "noun": "flower",
+                    "polarity": 1,
+                    "line": 12,
+                    "col": 20
+                  },
+                  "terminator": ".",
+                  "line": 12,
+                  "col": 1
+                },
+                {
+                  "target": "you",
+                  "simile_adj": "",
+                  "expr": {
+                    "op": "sum",
+                    "left": {
+                      "adjective_count": 0,
+                      "noun": "flower",
+                      "polarity": 1,
+                      "line": 13,
+                      "col": 20
+                    },
+                    "right": {
+                      "adjective_count": 0,
+                      "noun": "flower",
+                      "polarity": 1,
+                      "line": 13,
+                      "col": 33
+                    },
+                    "line": 13,
+                    "col": 9
+                  },
+                  "terminator": ".",
+                  "line": 13,
+                  "col": 1
+                },
+                {
+                  "target": "you",
+                  "simile_adj": "",
+                  "expr": {
+                    "op": "difference",
+                    "left": {
+                      "adjective_count": 0,
+                      "noun": "flower",
+                      "polarity": 1,
+                      "line": 14,
+                      "col": 32
+                    },
+                    "right": {
+                      "adjective_count": 0,
+                      "noun": "coward",
+                      "polarity": -1,
+                      "line": 14,
+                      "col": 45
+                    },
+                    "line": 14,
+                    "col": 9
+                  },
+                  "terminator": ".",
+                  "line": 14,
+                  "col": 1
+                },
+                {
+                  "target": "you",
+                  "simile_adj": "",
+                  "expr": {
+                    "op": "product",
+                    "left": {
+                      "adjective_count": 0,
+                      "noun": "flower",
+                      "polarity": 1,
+                      "line": 15,
+                      "col": 24
+                    },
+                    "right": {
+                      "adjective_count": 0,
+                      "noun": "flower",
+                      "polarity": 1,
+                      "line": 15,
+                      "col": 37
+                    },
+                    "line": 15,
+                    "col": 9
+                  },
+                  "terminator": ".",
+                  "line": 15,
+                  "col": 1
+                },
+                {
+                  "target": "you",
+                  "simile_adj": "",
+                  "expr": {
+                    "op": "quotient",
+                    "left": {
+                      "adjective_count": 0,
+                      "noun": "flower",
+                      "polarity": 1,
+                      "line": 16,
+                      "col": 30
+                    },
+                    "right": {
+                      "adjective_count": 0,
+                      "noun": "flower",
+                      "polarity": 1,
+                      "line": 16,
+                      "col": 43
+                    },
+                    "line": 16,
+                    "col": 9
+                  },
+                  "terminator": ".",
+                  "line": 16,
+                  "col": 1
+                },
+                {
+                  "target": "you",
+                  "simile_adj": "",
+                  "expr": {
+                    "op": "remainder",
+                    "left": {
+                      "adjective_count": 0,
+                      "noun": "flower",
+                      "polarity": 1,
+                      "line": 17,
+                      "col": 47
+                    },
+                    "right": {
+                      "adjective_count": 0,
+                      "noun": "flower",
+                      "polarity": 1,
+                      "line": 17,
+                      "col": 60
+                    },
+                    "line": 17,
+                    "col": 9
+                  },
+                  "terminator": ".",
+                  "line": 17,
+                  "col": 1
+                },
+                {
+                  "target": "you",
+                  "simile_adj": "",
+                  "expr": {
+                    "op": "square",
+                    "operand": {
+                      "adjective_count": 0,
+                      "noun": "flower",
+                      "polarity": 1,
+                      "line": 18,
+                      "col": 23
+                    },
+                    "line": 18,
+                    "col": 9
+                  },
+                  "terminator": ".",
+                  "line": 18,
+                  "col": 1
+                },
+                {
+                  "target": "you",
+                  "simile_adj": "",
+                  "expr": {
+                    "op": "cube",
+                    "operand": {
+                      "adjective_count": 0,
+                      "noun": "flower",
+                      "polarity": 1,
+                      "line": 19,
+                      "col": 21
+                    },
+                    "line": 19,
+                    "col": 9
+                  },
+                  "terminator": ".",
+                  "line": 19,
+                  "col": 1
+                },
+                {
+                  "target": "you",
+                  "simile_adj": "",
+                  "expr": {
+                    "op": "square_root",
+                    "operand": {
+                      "adjective_count": 0,
+                      "noun": "flower",
+                      "polarity": 1,
+                      "line": 20,
+                      "col": 28
+                    },
+                    "line": 20,
+                    "col": 9
+                  },
+                  "terminator": ".",
+                  "line": 20,
+                  "col": 1
+                },
+                {
+                  "target": "you",
+                  "simile_adj": "",
+                  "expr": {
+                    "op": "factorial",
+                    "operand": {
+                      "adjective_count": 0,
+                      "noun": "flower",
+                      "polarity": 1,
+                      "line": 21,
+                      "col": 26
+                    },
+                    "line": 21,
+                    "col": 9
+                  },
+                  "terminator": ".",
+                  "line": 21,
+                  "col": 1
+                },
+                {
+                  "target": "you",
+                  "simile_adj": "",
+                  "expr": {
+                    "op": "twice",
+                    "operand": {
+                      "adjective_count": 0,
+                      "noun": "flower",
+                      "polarity": 1,
+                      "line": 22,
+                      "col": 15
+                    },
+                    "line": 22,
+                    "col": 15
+                  },
+                  "terminator": ".",
+                  "line": 22,
+                  "col": 1
+                },
+                {
+                  "target": "you",
+                  "simile_adj": "",
+                  "expr": {
+                    "op": "sum",
+                    "left": {
+                      "op": "sum",
+                      "left": {
+                        "adjective_count": 0,
+                        "noun": "flower",
+                        "polarity": 1,
+                        "line": 23,
+                        "col": 31
+                      },
+                      "right": {
+                        "adjective_count": 0,
+                        "noun": "flower",
+                        "polarity": 1,
+                        "line": 23,
+                        "col": 44
+                      },
+                      "line": 23,
+                      "col": 20
+                    },
+                    "right": {
+                      "adjective_count": 0,
+                      "noun": "flower",
+                      "polarity": 1,
+                      "line": 23,
+                      "col": 57
+                    },
+                    "line": 23,
+                    "col": 9
+                  },
+                  "terminator": ".",
+                  "line": 23,
+                  "col": 1
+                }
+              ],
+              "line": 11,
+              "col": 1
+            },
+            {
+              "characters": null,
+              "line": 25,
+              "col": 1
+            }
+          ],
+          "line": 7,
+          "col": 1
+        }
+      ],
+      "line": 6,
+      "col": 1
+    }
+  ],
+  "warnings": null,
+  "line": 26,
+  "col": 1
+}

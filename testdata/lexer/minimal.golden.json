@@ -1,0 +1,63 @@
+{
+  "title": {
+    "text": "The Minimal Program",
+    "line": 1,
+    "col": 1
+  },
+  "characters": [
+    {
+      "name": "Romeo",
+      "description": "a young man",
+      "line": 3,
+      "col": 1
+    }
+  ],
+  "acts": [
+    {
+      "number": 1,
+      "roman_numeral": "I",
+      "description": "A single scene",
+      "scenes": [
+        {
+          "number": 1,
+          "roman_numeral": "I",
+          "description": "The only scene",
+          "statements": [
+            {
+              "characters": [
+                "Romeo",
+                "Juliet"
+              ],
+              "line": 8,
+              "col": 1
+            },
+            {
+              "speaker": "Juliet",
+              "statements": [
+                {
+                  "terminator": ".",
+                  "line": 11,
+                  "col": 1
+                }
+              ],
+              "line": 10,
+              "col": 1
+            },
+            {
+              "characters": null,
+              "line": 13,
+              "col": 1
+            }
+          ],
+          "line": 6,
+          "col": 1
+        }
+      ],
+      "line": 5,
+      "col": 1
+    }
+  ],
+  "warnings": null,
+  "line": 14,
+  "col": 1
+}

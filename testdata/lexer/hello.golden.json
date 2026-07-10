@@ -1,0 +1,745 @@
+{
+  "title": {
+    "text": "The Infamous Hello World Program",
+    "line": 1,
+    "col": 1
+  },
+  "characters": [
+    {
+      "name": "Romeo",
+      "description": "a young man with a remarkable patience",
+      "line": 3,
+      "col": 1
+    },
+    {
+      "name": "Juliet",
+      "description": "a likewise young woman of remarkable grace",
+      "line": 4,
+      "col": 1
+    },
+    {
+      "name": "Ophelia",
+      "description": "a remarkable woman much in dispute with Hamlet",
+      "line": 5,
+      "col": 1
+    },
+    {
+      "name": "Hamlet",
+      "description": "the flatterer of Andersen Insulting A/S",
+      "line": 6,
+      "col": 1
+    }
+  ],
+  "acts": [
+    {
+      "number": 1,
+      "roman_numeral": "I",
+      "description": "Hamlet's insults and flattery",
+      "scenes": [
+        {
+          "number": 1,
+          "roman_numeral": "I",
+          "description": "The insulting of Romeo",
+          "statements": [
+            {
+              "characters": [
+                "Hamlet",
+                "Romeo"
+              ],
+              "line": 11,
+              "col": 1
+            },
+            {
+              "speaker": "Hamlet",
+              "statements": [
+                {
+                  "target": "you",
+                  "simile_adj": "",
+                  "expr": {
+                    "adjective_count": 6,
+                    "noun": "coward",
+                    "polarity": -1,
+                    "line": 14,
+                    "col": 6
+                  },
+                  "terminator": "!",
+                  "line": 14,
+                  "col": 2
+                },
+                {
+                  "target": "you",
+                  "simile_adj": "stupid",
+                  "expr": {
+                    "op": "difference",
+                    "left": {
+                      "adjective_count": 3,
+                      "noun": "hero",
+                      "polarity": 1,
+                      "line": 15,
+                      "col": 46
+                    },
+                    "right": {
+                      "ref": "listener",
+                      "line": 16,
+                      "col": 11
+                    },
+                    "line": 15,
+                    "col": 23
+                  },
+                  "terminator": "!",
+                  "line": 15,
+                  "col": 2
+                },
+                {
+                  "terminator": "!",
+                  "line": 16,
+                  "col": 20
+                },
+                {
+                  "target": "you",
+                  "simile_adj": "brave",
+                  "expr": {
+                    "op": "sum",
+                    "left": {
+                      "adjective_count": 7,
+                      "noun": "codpiece",
+                      "polarity": -1,
+                      "line": 17,
+                      "col": 33
+                    },
+                    "right": {
+                      "adjective_count": 6,
+                      "noun": "day",
+                      "polarity": 1,
+                      "line": 18,
+                      "col": 26
+                    },
+                    "line": 17,
+                    "col": 22
+                  },
+                  "terminator": ".",
+                  "line": 17,
+                  "col": 2
+                },
+                {
+                  "target": "you",
+                  "simile_adj": "healthy",
+                  "expr": {
+                    "op": "difference",
+                    "left": {
+                      "op": "sum",
+                      "left": {
+                        "adjective_count": 2,
+                        "noun": "rose",
+                        "polarity": 1,
+                        "line": 19,
+                        "col": 63
+                      },
+                      "right": {
+                        "adjective_count": 0,
+                        "noun": "father",
+                        "polarity": 1,
+                        "line": 20,
+                        "col": 28
+                      },
+                      "line": 19,
+                      "col": 52
+                    },
+                    "right": {
+                      "ref": "listener",
+                      "line": 20,
+                      "col": 42
+                    },
+                    "line": 19,
+                    "col": 29
+                  },
+                  "terminator": "!",
+                  "line": 19,
+                  "col": 7
+                },
+                {
+                  "terminator": "!",
+                  "line": 20,
+                  "col": 52
+                },
+                {
+                  "target": "you",
+                  "simile_adj": "cowardly",
+                  "expr": {
+                    "op": "sum",
+                    "left": {
+                      "ref": "listener",
+                      "line": 21,
+                      "col": 36
+                    },
+                    "right": {
+                      "op": "difference",
+                      "left": {
+                        "adjective_count": 3,
+                        "noun": "kingdom",
+                        "polarity": 1,
+                        "line": 22,
+                        "col": 10
+                      },
+                      "right": {
+                        "adjective_count": 0,
+                        "noun": "horse",
+                        "polarity": 1,
+                        "line": 22,
+                        "col": 41
+                      },
+                      "line": 21,
+                      "col": 49
+                    },
+                    "line": 21,
+                    "col": 25
+                  },
+                  "terminator": ".",
+                  "line": 21,
+                  "col": 2
+                },
+                {
+                  "terminator": ".",
+                  "line": 22,
+                  "col": 50
+                },
+                {
+                  "terminator": "!",
+                  "line": 23,
+                  "col": 2
+                }
+              ],
+              "line": 13,
+              "col": 1
+            },
+            {
+              "character": "Romeo",
+              "line": 25,
+              "col": 1
+            }
+          ],
+          "line": 9,
+          "col": 1
+        },
+        {
+          "number": 2,
+          "roman_numeral": "II",
+          "description": "The praising of Juliet",
+          "statements": [
+            {
+              "characters": [
+                "Juliet"
+              ],
+              "line": 29,
+              "col": 1
+            },
+            {
+              "speaker": "Hamlet",
+              "statements": [
+                {
+                  "target": "you",
+                  "simile_adj": "sweet",
+                  "expr": {
+                    "op": "sum",
+                    "left": {
+                      "op": "sum",
+                      "left": {
+                        "name": "Romeo",
+                        "line": 32,
+                        "col": 45
+                      },
+                      "right": {
+                        "adjective_count": 0,
+                        "noun": "horse",
+                        "polarity": 1,
+                        "line": 32,
+                        "col": 55
+                      },
+                      "line": 32,
+                      "col": 34
+                    },
+                    "right": {
+                      "adjective_count": 1,
+                      "noun": "cat",
+                      "polarity": 1,
+                      "line": 32,
+                      "col": 69
+                    },
+                    "line": 32,
+                    "col": 23
+                  },
+                  "terminator": "!",
+                  "line": 32,
+                  "col": 2
+                },
+                {
+                  "terminator": "!",
+                  "line": 33,
+                  "col": 13
+                }
+              ],
+              "line": 31,
+              "col": 1
+            },
+            {
+              "character": "Juliet",
+              "line": 35,
+              "col": 1
+            }
+          ],
+          "line": 27,
+          "col": 1
+        },
+        {
+          "number": 3,
+          "roman_numeral": "III",
+          "description": "The praising of Ophelia",
+          "statements": [
+            {
+              "characters": [
+                "Ophelia"
+              ],
+              "line": 39,
+              "col": 1
+            },
+            {
+              "speaker": "Hamlet",
+              "statements": [
+                {
+                  "target": "you",
+                  "simile_adj": "beautiful",
+                  "expr": {
+                    "op": "difference",
+                    "left": {
+                      "name": "Romeo",
+                      "line": 42,
+                      "col": 50
+                    },
+                    "right": {
+                      "op": "square",
+                      "operand": {
+                        "adjective_count": 3,
+                        "noun": "tree",
+                        "polarity": 1,
+                        "line": 43,
+                        "col": 5
+                      },
+                      "line": 42,
+                      "col": 60
+                    },
+                    "line": 42,
+                    "col": 27
+                  },
+                  "terminator": ".",
+                  "line": 42,
+                  "col": 2
+                },
+                {
+                  "terminator": "!",
+                  "line": 43,
+                  "col": 33
+                },
+                {
+                  "target": "you",
+                  "simile_adj": "lovely",
+                  "expr": {
+                    "op": "product",
+                    "left": {
+                      "adjective_count": 2,
+                      "noun": "town",
+                      "polarity": 1,
+                      "line": 44,
+                      "col": 39
+                    },
+                    "right": {
+                      "adjective_count": 3,
+                      "noun": "purse",
+                      "polarity": 1,
+                      "line": 44,
+                      "col": 62
+                    },
+                    "line": 44,
+                    "col": 24
+                  },
+                  "terminator": ".",
+                  "line": 44,
+                  "col": 2
+                },
+                {
+                  "terminator": "!",
+                  "line": 45,
+                  "col": 32
+                },
+                {
+                  "target": "you",
+                  "simile_adj": "loving",
+                  "expr": {
+                    "op": "product",
+                    "left": {
+                      "adjective_count": 3,
+                      "noun": "sky",
+                      "polarity": 1,
+                      "line": 46,
+                      "col": 39
+                    },
+                    "right": {
+                      "op": "sum",
+                      "left": {
+                        "adjective_count": 0,
+                        "noun": "squirrel",
+                        "polarity": 1,
+                        "line": 47,
+                        "col": 17
+                      },
+                      "right": {
+                        "adjective_count": 1,
+                        "noun": "horse",
+                        "polarity": 1,
+                        "line": 47,
+                        "col": 32
+                      },
+                      "line": 47,
+                      "col": 6
+                    },
+                    "line": 46,
+                    "col": 24
+                  },
+                  "terminator": ".",
+                  "line": 46,
+                  "col": 2
+                },
+                {
+                  "target": "you",
+                  "simile_adj": "beautiful",
+                  "expr": {
+                    "op": "difference",
+                    "left": {
+                      "name": "Juliet",
+                      "line": 48,
+                      "col": 25
+                    },
+                    "right": {
+                      "ref": "listener",
+                      "line": 48,
+                      "col": 36
+                    },
+                    "line": 48,
+                    "col": 2
+                  },
+                  "terminator": ".",
+                  "line": 47,
+                  "col": 47
+                },
+                {
+                  "terminator": "!",
+                  "line": 48,
+                  "col": 45
+                }
+              ],
+              "line": 41,
+              "col": 1
+            },
+            {
+              "characters": [
+                "Ophelia",
+                "Hamlet"
+              ],
+              "line": 50,
+              "col": 1
+            }
+          ],
+          "line": 37,
+          "col": 1
+        }
+      ],
+      "line": 8,
+      "col": 1
+    },
+    {
+      "number": 2,
+      "roman_numeral": "II",
+      "description": "Behind Hamlet's back",
+      "scenes": [
+        {
+          "number": 1,
+          "roman_numeral": "I",
+          "description": "Romeo and Juliet's conversation",
+          "statements": [
+            {
+              "characters": [
+                "Romeo",
+                "Juliet"
+              ],
+              "line": 55,
+              "col": 1
+            },
+            {
+              "speaker": "Romeo",
+              "statements": [
+                {
+                  "terminator": ".",
+                  "line": 58,
+                  "col": 2
+                },
+                {
+                  "target": "you",
+                  "simile_adj": "worried",
+                  "expr": {
+                    "op": "sum",
+                    "left": {
+                      "ref": "listener",
+                      "line": 58,
+                      "col": 52
+                    },
+                    "right": {
+                      "op": "difference",
+                      "left": {
+                        "adjective_count": 2,
+                        "noun": "hamster",
+                        "polarity": 1,
+                        "line": 59,
+                        "col": 21
+                      },
+                      "right": {
+                        "adjective_count": 0,
+                        "noun": "nose",
+                        "polarity": 1,
+                        "line": 59,
+                        "col": 49
+                      },
+                      "line": 58,
+                      "col": 65
+                    },
+                    "line": 58,
+                    "col": 41
+                  },
+                  "terminator": ".",
+                  "line": 58,
+                  "col": 19
+                },
+                {
+                  "terminator": "!",
+                  "line": 59,
+                  "col": 58
+                }
+              ],
+              "line": 57,
+              "col": 1
+            },
+            {
+              "speaker": "Juliet",
+              "statements": [
+                {
+                  "terminator": "!",
+                  "line": 62,
+                  "col": 2
+                },
+                {
+                  "target": "you",
+                  "simile_adj": "bad",
+                  "expr": {
+                    "name": "Hamlet",
+                    "line": 62,
+                    "col": 37
+                  },
+                  "terminator": "!",
+                  "line": 62,
+                  "col": 19
+                },
+                {
+                  "target": "you",
+                  "simile_adj": "small",
+                  "expr": {
+                    "op": "difference",
+                    "left": {
+                      "op": "square",
+                      "operand": {
+                        "op": "difference",
+                        "left": {
+                          "adjective_count": 1,
+                          "noun": "pony",
+                          "polarity": 1,
+                          "line": 63,
+                          "col": 58
+                        },
+                        "right": {
+                          "adjective_count": 2,
+                          "noun": "hound",
+                          "polarity": -1,
+                          "line": 64,
+                          "col": 6
+                        },
+                        "line": 63,
+                        "col": 35
+                      },
+                      "line": 63,
+                      "col": 21
+                    },
+                    "right": {
+                      "op": "cube",
+                      "operand": {
+                        "adjective_count": 2,
+                        "noun": "codpiece",
+                        "polarity": -1,
+                        "line": 64,
+                        "col": 43
+                      },
+                      "line": 64,
+                      "col": 31
+                    },
+                    "line": 62,
+                    "col": 65
+                  },
+                  "terminator": ".",
+                  "line": 62,
+                  "col": 45
+                },
+                {
+                  "terminator": "!",
+                  "line": 65,
+                  "col": 12
+                }
+              ],
+              "line": 61,
+              "col": 1
+            },
+            {
+              "character": "Romeo",
+              "line": 67,
+              "col": 1
+            }
+          ],
+          "line": 53,
+          "col": 1
+        },
+        {
+          "number": 2,
+          "roman_numeral": "II",
+          "description": "Juliet and Ophelia's conversation",
+          "statements": [
+            {
+              "characters": [
+                "Ophelia"
+              ],
+              "line": 71,
+              "col": 1
+            },
+            {
+              "speaker": "Juliet",
+              "statements": [
+                {
+                  "target": "you",
+                  "simile_adj": "good",
+                  "expr": {
+                    "op": "quotient",
+                    "left": {
+                      "name": "Romeo",
+                      "line": 74,
+                      "col": 43
+                    },
+                    "right": {
+                      "op": "sum",
+                      "left": {
+                        "adjective_count": 2,
+                        "noun": "animal",
+                        "polarity": 1,
+                        "line": 74,
+                        "col": 64
+                      },
+                      "right": {
+                        "adjective_count": 0,
+                        "noun": "leech",
+                        "polarity": -1,
+                        "line": 75,
+                        "col": 19
+                      },
+                      "line": 74,
+                      "col": 53
+                    },
+                    "line": 74,
+                    "col": 22
+                  },
+                  "terminator": ".",
+                  "line": 74,
+                  "col": 2
+                },
+                {
+                  "terminator": "!",
+                  "line": 75,
+                  "col": 28
+                }
+              ],
+              "line": 73,
+              "col": 1
+            },
+            {
+              "speaker": "Ophelia",
+              "statements": [
+                {
+                  "target": "you",
+                  "simile_adj": "disgusting",
+                  "expr": {
+                    "op": "quotient",
+                    "left": {
+                      "name": "Romeo",
+                      "line": 78,
+                      "col": 49
+                    },
+                    "right": {
+                      "op": "twice",
+                      "operand": {
+                        "op": "difference",
+                        "left": {
+                          "adjective_count": 0,
+                          "noun": "mistletoe",
+                          "polarity": -1,
+                          "line": 79,
+                          "col": 21
+                        },
+                        "right": {
+                          "adjective_count": 2,
+                          "noun": "blister",
+                          "polarity": -1,
+                          "line": 79,
+                          "col": 37
+                        },
+                        "line": 78,
+                        "col": 65
+                      },
+                      "line": 78,
+                      "col": 65
+                    },
+                    "line": 78,
+                    "col": 28
+                  },
+                  "terminator": "!",
+                  "line": 78,
+                  "col": 2
+                },
+                {
+                  "terminator": "!",
+                  "line": 79,
+                  "col": 65
+                }
+              ],
+              "line": 77,
+              "col": 1
+            },
+            {
+              "characters": null,
+              "line": 81,
+              "col": 1
+            }
+          ],
+          "line": 69,
+          "col": 1
+        }
+      ],
+      "line": 52,
+      "col": 1
+    }
+  ],
+  "warnings": null,
+  "line": 82,
+  "col": 1
+}
