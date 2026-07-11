@@ -78,27 +78,70 @@ Parse token stream into AST.
 ### Decisions
 - *(none yet)*
 
+### Phase 2 bugfix: `enterSeen` act-boundary reset
+- **Bug:** `parseActs()` reset `enterSeen` to `false` at every act boundary, causing S013 (`errMissingStage`) on valid programs where stage state carries across acts without a new `[Enter]` (e.g., `primes.spl` from the official zmbc/shakespearelang reference).
+- **Fix:** Hoisted `enterSeen` to the `parseActs()` scope (was per-act), threaded it through both the period-branch and colon-branch of act parsing.
+- **Verification:** `primes.spl` adapted excerpt (`testdata/parser/cross-act-persistence.shpl`) now parses without S013. Existing tests unaffected.
+- **Reference:** `docs/superpowers/plans/2026-07-10-phase3-semantic-analysis.md` Step 3.0.
+
 ### Remaining
 - Full parser implementation + tests
 
-## Phase 3 — Semantic Analysis
+## Phase 3 — Semantic Analysis ✅
 
-Validate AST for semantic correctness.  
-**Dependency**: Phase 2 (parser).
+Validate AST for semantic correctness (M001–M008).  
+**Dependency**: Phase 2 (parser) ✅
 
-- [ ] Validate: all referenced characters are declared
-- [ ] Validate: max 2 characters on stage at any time
-- [ ] Validate: characters are on stage before being spoken to
-- [ ] Validate: scenes referenced in `goto` exist
-- [ ] Validate: at least one act and one scene per act
-- [ ] Validate: Roman numeral ordering (Act I, then II, etc.)
-- [ ] Produce annotated AST or symbol table
+- [x] `internal/semantic/` package: `errors.go`, `symbol_table.go`, `stage.go`, `analyzer.go`
+- [x] SemanticError struct with M001–M008 constructors, matching taxonomy format
+- [x] SymbolTable (case-insensitive, preserves original-case Name), ActRegistry, SceneRegistry (per-act scoping)
+- [x] Stage manager: Enter/Exit/Exeunt with max-2 enforcement, overflow, duplicate detection
+- [x] M001: Undeclared character in stage directions or dialogue speaker
+- [x] M002: Too many characters in single Enter (defensive — parser caps at 2)
+- [x] M003: Stage overflow (2 already on stage, trying to add more)
+- [x] M004: Speaker not on stage (role="speaker"), listener not reachable
+- [x] M005: Exit/Exeunt targeting character not on stage
+- [x] M006: Goto/If target scene/act does not exist (per-act scene scoping)
+- [x] M007: Self-reference Enter (same name twice in one Enter, or re-enter already-on-stage)
+- [x] M008: Act with zero scenes (defensive — parser enforces S007)
+- [x] D1: Stage does NOT clear at act boundaries (primes.spl evidence)
+- [x] D2: Off-stage CharRefExpr in expressions is ALLOWED (no M004)
+- [x] Two-level type-switch dispatch (level 1: Scene statements; level 2: Dialogue statements with dialogCtx)
+- [x] Collect-all errors (linter-style, D4), returns `Result` with `OK()` method
+- [x] 16 fixtures under `testdata/semantic/` (valid + each M-code + multiple errors)
+- [x] 97.9% statement coverage
+- [x] `task check` green
 
 ### Decisions
-- *(none yet)*
+- **D1**: Stage persists across act boundaries, mutated only by Enter/Exit/Exeunt (confirmed by `primes.spl`).
+- **D2**: CharRefExpr value reads allowed even if character is off-stage (confirmed by canonical Hello World, Act I Scenes II/III).
+- **D3**: M008 is defensive (S007 already enforced by parser).
+- **D4**: All errors collected in one pass; no fail-fast.
+- **D5**: Type-switch dispatch (no formal Visitor interface — YAGNI).
+- **D6**: Re-entering an already-on-stage character → M007 (`cannot enter 'X': already on stage`).
+- **D7**: No annotated AST produced — `Result` carries symbols + registries + errors only (runtime re-derives listener from stage).
 
-### Remaining
-- Full semantic analysis + tests
+### Fixtures
+| Fixture | Expected |
+|---------|----------|
+| `hello.shpl` | zero errors |
+| `truth-machine.shpl` | zero errors |
+| `minimal-valid.shpl` | zero errors |
+| `self-talk.shpl` | zero errors |
+| `off-stage-value-read.shpl` | zero errors (D2) |
+| `valid-operations.shpl` | zero errors |
+| `primes-persistence.shpl` | zero errors (D1) |
+| `m001-undeclared-enter.shpl` | M001 |
+| `m001-undeclared-speaker.shpl` | M001 |
+| `m003-stage-overflow.shpl` | M003 |
+| `m004-speaker-not-on-stage.shpl` | M004 |
+| `m004-empty-stage-cross-act.shpl` | M004 |
+| `m005-exit-not-on-stage.shpl` | M005 |
+| `m006-undefined-scene.shpl` | M006 |
+| `m006-undefined-act.shpl` | M006 |
+| `m007-self-enter.shpl` | M007 |
+| `multiple-errors.shpl` | M001 + M003 + M006 |
+| `goto-cross-act-scene.shpl` | M006 (scene III in Act II) |
 
 ## Phase 4 — Runtime / Evaluator
 
