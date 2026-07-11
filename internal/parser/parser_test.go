@@ -141,6 +141,19 @@ func TestParseMinimal(t *testing.T) {
 	}
 }
 
+func TestParseCrossActPersistence(t *testing.T) {
+	prog := parseTokens(t, "../../testdata/parser/cross-act-persistence.shpl")
+	if len(prog.Acts) != 2 {
+		t.Fatalf("acts: got %d, want 2", len(prog.Acts))
+	}
+	if len(prog.Acts[0].Scenes) != 1 {
+		t.Errorf("Act I scenes: got %d, want 1", len(prog.Acts[0].Scenes))
+	}
+	if len(prog.Acts[1].Scenes) != 1 {
+		t.Errorf("Act II scenes: got %d, want 1", len(prog.Acts[1].Scenes))
+	}
+}
+
 // -- Expression unit tests --
 
 func TestParseConstantSimple(t *testing.T) {

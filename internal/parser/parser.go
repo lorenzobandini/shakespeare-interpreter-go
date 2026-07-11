@@ -189,6 +189,7 @@ func (p *Parser) parseCharacterDecls() ([]CharacterDecl, error) {
 func (p *Parser) parseActs() ([]Act, error) {
 	var acts []Act
 	expected := 1
+	enterSeen := false // threaded across acts: stage entry persists across act boundaries
 	for p.checkWord("act") {
 		firstLine := p.peek().Line
 		firstCol := p.peek().Col
@@ -211,14 +212,14 @@ func (p *Parser) parseActs() ([]Act, error) {
 				return nil, errInvalidActNumber(roman, firstLine, firstCol)
 			}
 			p.skipNewlines()
-			scenes, enterSeen, err := p.parseScenes(roman, false)
+			scenes, newSeen, err := p.parseScenes(roman, enterSeen)
 			if err != nil {
 				return nil, err
 			}
 			if len(scenes) == 0 {
 				return nil, errMissingScene(roman, firstLine, firstCol)
 			}
-			_ = enterSeen
+			enterSeen = newSeen
 			acts = append(acts, Act{Number: num, RomanNumeral: roman, Scenes: scenes, Line: firstLine, Col: firstCol})
 			continue
 		}
@@ -230,13 +231,14 @@ func (p *Parser) parseActs() ([]Act, error) {
 			return nil, errInvalidActNumber(roman, firstLine, firstCol)
 		}
 		p.skipNewlines()
-		scenes, _, err := p.parseScenes(roman, false)
+		scenes, newSeen, err := p.parseScenes(roman, enterSeen)
 		if err != nil {
 			return nil, err
 		}
 		if len(scenes) == 0 {
 			return nil, errMissingScene(roman, firstLine, firstCol)
 		}
+		enterSeen = newSeen
 		acts = append(acts, Act{
 			Number:       num,
 			RomanNumeral: roman,
