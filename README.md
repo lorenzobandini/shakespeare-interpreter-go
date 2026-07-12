@@ -16,6 +16,9 @@ A Go-based interpreter for the [Shakespeare Programming Language](http://shakesp
 ```sh
 task build          # compile → bin/shpl.exe  (Windows)
 ./bin/shpl.exe      # or: go run cmd/shpl/main.go
+
+# Execute an SPL source file:
+./bin/shpl.exe run examples/hello.shpl
 ```
 
 For a portable Linux binary:

@@ -75,7 +75,11 @@ Produced by `internal/runtime` during execution.
 | `R001` | DivisionByZero | `the quotient between Hamlet and a coward` (Juliet = 0) | `division by zero at Act I, Scene II` |
 | `R002` | InputNotANumber | `Listen to your heart.` but stdin is "hello" | `expected a number, got 'hello'` |
 | `R003` | InputEOF | `Open your mind.` but stdin is exhausted | `unexpected end of input` |
-| `R004` | IntegerOverflow | Value exceeds int bounds | *depends on implementation — Go ints wrap, may not error* |
+| `R004` | IntegerOverflow | Value exceeds int bounds | `integer overflow in 'factorial'` |
+
+**Runtime notes:**
+- R001 fires on both `quotient` and `remainder` binary operations when the divisor evaluates to zero.
+- R004 currently fires only for `factorial` of values > 20 (the one operation where overflow is detectable and catastrophic). Other overflows silently wrap per R-D6.
 
 ## Error Format
 

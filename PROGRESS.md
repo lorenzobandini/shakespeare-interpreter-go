@@ -143,28 +143,48 @@ Validate AST for semantic correctness (M001–M008).
 | `multiple-errors.shpl` | M001 + M003 + M006 |
 | `goto-cross-act-scene.shpl` | M006 (scene III in Act II) |
 
-## Phase 4 — Runtime / Evaluator
+## Phase 4 — Runtime / Evaluator ✅
 
 Execute the program.  
-**Dependency**: Phase 3 (semantic analysis).
+**Dependency**: Phase 3 (semantic analysis) ✅
 
-- [ ] Implement runtime in `internal/runtime/`:
-  - Character state (variable store: name → int)
-  - Stage manager (who's on stage, max 2)
-  - Expression evaluator (nouns, adjectives, operations, similes)
-  - I/O: stdin/stdout for Speak/Open/Listen commands
-  - Control flow: `if so` jumps, `goto` scenes
-  - Program counter: act/scene traversal
-- [ ] Fixtures: `testdata/interpreter/hello.shpl` → stdout "Hello World!"
-- [ ] Fixtures: `testdata/interpreter/truth-machine.shpl`
-- [ ] Tests: golden file (input `.shpl` + stdin → expected stdout)
-- [ ] CLI subcommand: `shpl run <file.shpl>`
+- [x] 4.1: Package scaffold, `RuntimeError` type, `env` struct, `NewEnv` constructor, `TestMain`
+- [x] 4.2: Constant expression evaluation (`ConstExpr`)
+- [x] 4.3: `CharRefExpr`, `PronounExpr`, binary/unary operations (R001)
+- [x] 4.4: Stage manager reuse — `Enter`/`Exit`/`Exeunt` + listener derivation
+- [x] 4.5: Assignment and I/O statements (R002, R003)
+- [x] 4.6: Stack operations (`Remember`/`Recall`)
+- [x] 4.7: Questions, comparison flag, `If`/`Goto` branch resolution
+- [x] 4.8: Program flattening + trampoline `Execute`
+- [x] 4.9: Public `Execute` entry
+- [x] 4.10: `shpl run` CLI subcommand
+- [x] 4.11: Canonical fixtures + golden-file tests + `task check` gate
 
 ### Decisions
-- *(none yet)*
+- **R-D1**: Flatten program to single `[]instr` + integer PC (not nested traversal)
+- **R-D2**: I/O formatting: Speak writes 1 byte, OpenHeart writes `%d\n`
+- **R-D3**: Reuse `semantic.Stage` for runtime stage state; ignore its returned `[]SemanticError`
+- **R-D4**: Per-act scene label map (`map[actRoman]map[string]int`) rebuilt by flatten
+- **R-D5**: Comparison flag is a single `bool`, not a stack
+- **R-D6**: Integer overflow does not error (Go ints wrap)
+- **R-D7**: `OpenMind` reads 1 byte (0–255); EOF → R003
+- **R-D8**: `Listen` implements hand-rolled numeric parser skipping leading whitespace
 
-### Remaining
-- Full runtime + tests
+### Fixtures
+| Fixture | Expected |
+|---------|----------|
+| `hello.shpl` | byte(2) (STX) |
+| `branch.shpl` | `"1\n"` (if-not → jump to Scene II, OpenHeart) |
+| `stack.shpl` | `"1\n0\n0\n"` (push/pop/empty-pop) |
+| `io-ascii.shpl` (stdin "X") | `"X"` (read byte, echo) |
+| `truth-machine.shpl` (stdin "0\n") | `"0\n"` (greater-than comparison false → halt) |
+| `truth-machine-1.shpl` (stdin "1\n") | `"1\n"` then R003 (greater-than comparison true → loop → EOF) |
+| `divzero.shpl` | R001 error (divide by zero) |
+
+### Post-hoc fix: truth-machine fixture
+- **Bug**: `testdata/{semantic,interpreter}/truth-machine.shpl` used `as good as` (equal) instead of canonical `better than` (greater). Introduced during Phase 2/3 fixture creation; invisible to semantic checks (only validates syntax, not runtime behavior).
+- **Fix**: Replaced `"Am I as good as you?"` with `"Am I better than you?"`, restructured to 2 scenes matching the original 2001 Hasselström & Åslund spec. Golden files regenerated.
+- **Impact**: truth-machine now correctly loops on input "1" and halts on input "0".
 
 ## Phase 5 — CLI Integration
 
