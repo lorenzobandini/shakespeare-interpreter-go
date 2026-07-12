@@ -4,7 +4,14 @@ import (
 	"bytes"
 	"strings"
 	"testing"
+
+	"github.com/lorenzobandini/shakespeare-interpreter-go/internal/logger"
 )
+
+func TestMain(m *testing.M) {
+	logger.Init(logger.LevelInfo)
+	m.Run()
+}
 
 func TestMainEngineSetup(t *testing.T) {
 	expectedStatus := true
@@ -30,6 +37,18 @@ func TestTokensCommand(t *testing.T) {
 	}
 	if !strings.Contains(output, "{EOF") {
 		t.Errorf("output missing EOF token:\n%s", output)
+	}
+}
+
+func TestRunCommand(t *testing.T) {
+	buf := &bytes.Buffer{}
+	rootCmd.SetOut(buf)
+	rootCmd.SetArgs([]string{"run", "../../testdata/semantic/self-talk.shpl"})
+	defer rootCmd.SetArgs([]string{})
+	defer rootCmd.SetOut(nil)
+
+	if err := rootCmd.Execute(); err != nil {
+		t.Fatal(err)
 	}
 }
 
