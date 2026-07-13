@@ -2,7 +2,7 @@
 
 **Package:** `internal/lexer/`
 
-The lexer converts a `.shpl` source string into a stream of 9 token types.
+The lexer converts a `.shpl` source string into a stream of 10 token types.
 
 ## Token types
 
