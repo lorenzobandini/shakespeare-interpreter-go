@@ -34,14 +34,14 @@ func errTooManyOnStage(got int, line, col int) SemanticError {
 	}
 }
 
-func errStageOverflow(name string, onStage []string, line, col int) SemanticError {
+func errStageOverflow(onStage []string, line, col int) SemanticError {
 	return SemanticError{
 		Code: "M003", Line: line, Col: col,
 		Msg: fmt.Sprintf("cannot enter: stage is full (%s already on stage)", strings.Join(onStage, ", ")),
 	}
 }
 
-func errCharacterNotOnStage(name, role string, line, col int) SemanticError {
+func errCharacterNotOnStage(name string, line, col int) SemanticError {
 	return SemanticError{
 		Code: "M004", Line: line, Col: col,
 		Msg: fmt.Sprintf("character '%s' is not on stage", name),
@@ -72,7 +72,7 @@ func errUndefinedScene(target, kind, ctx string, line, col int) SemanticError {
 	}
 }
 
-func errSelfReferenceEnter(name string, line, col int) SemanticError {
+func errSelfReferenceEnter(line, col int) SemanticError {
 	return SemanticError{
 		Code: "M007", Line: line, Col: col,
 		Msg: "cannot enter the same character twice",

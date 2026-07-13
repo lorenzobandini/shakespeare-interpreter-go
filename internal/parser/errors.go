@@ -34,7 +34,7 @@ func errInvalidActNumber(got string, line, col int) ParseError {
 	return ParseError{Code: "S005", Line: line, Col: col, Msg: fmt.Sprintf("expected Roman numeral after 'Act', got '%s'", got)}
 }
 
-func errActOrder(expected, got string, line, col int) ParseError {
+func errActOrder(expected string, line, col int) ParseError {
 	return ParseError{Code: "S006", Line: line, Col: col, Msg: fmt.Sprintf("act numbers must be sequential, expected %s", expected)}
 }
 
@@ -46,7 +46,7 @@ func errInvalidSceneNumber(got string, line, col int) ParseError {
 	return ParseError{Code: "S008", Line: line, Col: col, Msg: fmt.Sprintf("expected Roman numeral after 'Scene', got '%s'", got)}
 }
 
-func errSceneOrder(expected, got string, line, col int) ParseError {
+func errSceneOrder(expected string, line, col int) ParseError {
 	return ParseError{Code: "S009", Line: line, Col: col, Msg: fmt.Sprintf("scene numbers must be sequential, expected %s", expected)}
 }
 

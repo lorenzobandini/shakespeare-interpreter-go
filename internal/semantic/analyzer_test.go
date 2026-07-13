@@ -38,12 +38,12 @@ func TestSemanticErrorFormat(t *testing.T) {
 		},
 		{
 			name: "M003",
-			err:  errStageOverflow("Hamlet", []string{"Romeo", "Juliet"}, 10, 3),
+			err:  errStageOverflow([]string{"Romeo", "Juliet"}, 10, 3),
 			want: "error[M003]: cannot enter: stage is full (Romeo, Juliet already on stage)\n  --> input:10:3",
 		},
 		{
 			name: "M004",
-			err:  errCharacterNotOnStage("Romeo", "speaker", 15, 1),
+			err:  errCharacterNotOnStage("Romeo", 15, 1),
 			want: "error[M004]: character 'Romeo' is not on stage\n  --> input:15:1",
 		},
 		{
@@ -63,7 +63,7 @@ func TestSemanticErrorFormat(t *testing.T) {
 		},
 		{
 			name: "M007 self-enter",
-			err:  errSelfReferenceEnter("Romeo", 35, 10),
+			err:  errSelfReferenceEnter(35, 10),
 			want: "error[M007]: cannot enter the same character twice\n  --> input:35:10",
 		},
 		{

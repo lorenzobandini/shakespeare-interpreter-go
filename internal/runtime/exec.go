@@ -157,14 +157,14 @@ func (e *env) execInstr(i instr) (jumpPC int, jumped bool, err error) {
 		if !matched {
 			return 0, false, nil
 		}
-		pc, err := e.resolveJump(s.Target, s.TargetKind, i)
+		pc, err := e.resolveJump(s.Target, s.TargetKind)
 		if err != nil {
 			return 0, false, err
 		}
 		return pc, true, nil
 
 	case parser.GotoStmt:
-		pc, err := e.resolveJump(s.Target, s.TargetKind, i)
+		pc, err := e.resolveJump(s.Target, s.TargetKind)
 		if err != nil {
 			return 0, false, err
 		}
@@ -197,7 +197,7 @@ func applyRelation(relation string, left, right int) bool {
 	}
 }
 
-func (e *env) resolveJump(target, kind string, i instr) (int, error) {
+func (e *env) resolveJump(target, kind string) (int, error) {
 	lt := strings.ToLower(target)
 	switch kind {
 	case "scene":

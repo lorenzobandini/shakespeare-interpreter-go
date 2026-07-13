@@ -47,7 +47,7 @@ func (s *Stage) Enter(chars []string, syms SymbolTable, line, col int) []Semanti
 	for _, c := range chars {
 		key := strings.ToLower(c)
 		if seen[key] {
-			errs = append(errs, errSelfReferenceEnter(c, line, col))
+			errs = append(errs, errSelfReferenceEnter(line, col))
 			continue
 		}
 		seen[key] = true
@@ -74,7 +74,7 @@ func (s *Stage) Enter(chars []string, syms SymbolTable, line, col int) []Semanti
 			}
 		}
 		if currentSize+validNew > 2 {
-			errs = append(errs, errStageOverflow("", s.OnStage(), line, col))
+			errs = append(errs, errStageOverflow(s.OnStage(), line, col))
 		}
 	}
 

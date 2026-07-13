@@ -98,7 +98,7 @@ func (a *Analyzer) analyzeDialogue(d parser.Dialogue) {
 		a.errs = append(a.errs, *err)
 	}
 	if !a.stage.Has(d.Speaker) {
-		a.errs = append(a.errs, errCharacterNotOnStage(d.Speaker, "speaker", d.Line, d.Col))
+		a.errs = append(a.errs, errCharacterNotOnStage(d.Speaker, d.Line, d.Col))
 	}
 
 	listener, ok := a.stage.Listener(d.Speaker)

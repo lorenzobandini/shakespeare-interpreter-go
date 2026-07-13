@@ -29,6 +29,14 @@ func (p *Parser) Warnings() []Warning {
 	return p.warnings
 }
 
+// Done reports whether the parser has consumed all tokens. A program that
+// parses without error but has unconsumed tokens contains text the parser
+// could not interpret (e.g. a stray word outside of any dialogue or stage
+// direction).
+func (p *Parser) Done() bool {
+	return p.pos >= len(p.tokens)-1 || p.tokens[p.pos].Type == lexer.TokenEOF
+}
+
 func (p *Parser) addWarning(w Warning) {
 	p.warnings = append(p.warnings, w)
 }
@@ -204,7 +212,7 @@ func (p *Parser) parseActs() ([]Act, error) {
 		}
 		if num != expected {
 			expectedRoman := intToRoman(expected)
-			return nil, errActOrder(expectedRoman, roman, firstLine, firstCol)
+			return nil, errActOrder(expectedRoman, firstLine, firstCol)
 		}
 		expected++
 		if !p.match(lexer.TokenColon) {
@@ -212,7 +220,7 @@ func (p *Parser) parseActs() ([]Act, error) {
 				return nil, errInvalidActNumber(roman, firstLine, firstCol)
 			}
 			p.skipNewlines()
-			scenes, newSeen, err := p.parseScenes(roman, enterSeen)
+			scenes, newSeen, err := p.parseScenes(enterSeen)
 			if err != nil {
 				return nil, err
 			}
@@ -231,7 +239,7 @@ func (p *Parser) parseActs() ([]Act, error) {
 			return nil, errInvalidActNumber(roman, firstLine, firstCol)
 		}
 		p.skipNewlines()
-		scenes, newSeen, err := p.parseScenes(roman, enterSeen)
+		scenes, newSeen, err := p.parseScenes(enterSeen)
 		if err != nil {
 			return nil, err
 		}
@@ -256,7 +264,7 @@ func (p *Parser) parseActs() ([]Act, error) {
 }
 
 // parseScenes: loop while next is "scene" keyword. enterSeen persists across scenes.
-func (p *Parser) parseScenes(actRoman string, enterSeen bool) ([]Scene, bool, error) {
+func (p *Parser) parseScenes(enterSeen bool) ([]Scene, bool, error) {
 	var scenes []Scene
 	expected := 1
 	for p.checkWord("scene") {
@@ -273,7 +281,7 @@ func (p *Parser) parseScenes(actRoman string, enterSeen bool) ([]Scene, bool, er
 		}
 		if num != expected {
 			expectedRoman := intToRoman(expected)
-			return nil, enterSeen, errSceneOrder(expectedRoman, roman, firstLine, firstCol)
+			return nil, enterSeen, errSceneOrder(expectedRoman, firstLine, firstCol)
 		}
 		expected++
 		desc := ""
