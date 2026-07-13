@@ -9,8 +9,8 @@ Phase 0 scaffolding — **no interpreter logic exists yet**:
 
 Target architecture (from the project plan, not yet implemented): Cobra CLI with subcommands `run`, `ast`, `tokens`, `repl`, `version`, `about`; global `--debug`/`--trace` flags; pipeline `lexer → parser → ast → runtime`; `internal/` packages with unidirectional dependencies; structured logging via `log/slog`.
 
-The authoritative SPL language reference is `docs/SPL_SPECIFICATION.md`. Read it before implementing any lexer/parser/ast/runtime logic.
-The error taxonomy (`docs/ERROR_TAXONOMY.md`) defines error codes (L001, S001, M001, R001) — use these for consistent error reporting across all phases.
+The authoritative SPL language reference is `docs/spl/specification.md`. Read it before implementing any lexer/parser/ast/runtime logic.
+The error taxonomy (`docs/spl/errors.md`) defines error codes (L001, S001, M001, R001) — use these for consistent error reporting across all phases.
 
 ## Agent workflow
 
@@ -74,7 +74,7 @@ go test -race ./internal/lexer/...
 
 - **Design-first**: before writing execution logic, outline a step-by-step plan ("Planning Agent" step) and model package boundaries / AST / class structure with Mermaid diagrams. Don't jump straight to code.
 - **Conventional Commits** are required for all commit messages.
-- **GoDoc comments** stay inline next to code. Language specification lives in `docs/SPL_SPECIFICATION.md`. Keep `README.md` thin.
+- **GoDoc comments** stay inline next to code. Language specification lives in `docs/spl/specification.md`. Keep `README.md` thin.
 - `testdata/{lexer,parser,interpreter}` is the canonical home for `.shpl` fixtures used by table-driven and snapshot tests.
 - **PROGRESS.md** in the repo root tracks completed work, open decisions, and remaining tasks. Update it after each meaningful unit of work.
 

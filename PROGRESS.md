@@ -10,14 +10,14 @@
 - [x] CI (GitHub Actions): checkout → setup-go → task → golangci-lint v7 → govulncheck → goimports → `task check`
 - [x] Dockerfile: static linux binary, alpine base
 - [x] Structured logger (`internal/logger`, slog TextHandler, LevelInfo/LevelDebug)
-- [x] `docs/SPL_SPECIFICATION.md` — canonical SPL language reference
+- [x] `docs/spl/specification.md` — canonical SPL language reference
 - [x] AGENTS.md with agent workflow + conventions
 - [x] README.md with quick start + dev commands
 
 ## Phase 1 — Lexer ✅
 
 Tokenize `.shpl` source into a token stream.  
-**Dependency**: `docs/SPL_SPECIFICATION.md`.
+**Dependency**: `docs/spl/specification.md`.
 
 - [x] Define token types (9 types: EOF, NEWLINE, WORD, PERIOD, COMMA, COLON, BANG, QUESTION, LBRACKET, RBRACKET)
 - [x] Implement lexer in `internal/lexer/`:
@@ -213,6 +213,18 @@ Wire everything into the Cobra CLI.
 - **O(n²) replay complexity**: Each submission re-runs the full pipeline on the accumulated buffer. At human-typing scale (dozens of lines), this overhead is negligible.
 - **Infinite loops**: Programs with infinite loops (e.g., unterminated truth-machine) are incompatible with the replay model and are considered out of scope for the REPL.
 - **No stdin prompt customization**: The `input>` prompt is used when the program's `Listen`/`OpenMind` reads from stdin, with no configuration option.
+
+---
+
+## Phase 6 — Documentation Platform ✅
+
+Stand up official MkDocs + Material documentation site deployed to GitHub Pages.
+
+- [x] `mkdocs.yml` with Material slate theme, nav tree, GitHub integration
+- [x] Migrate `SPL_SPECIFICATION.md` and `ERROR_TAXONOMY.md` into MkDocs tree
+- [x] Content pages: Home, Getting Started, Architecture, CLI, Contributing, About
+- [x] CI/CD workflow: build + deploy on push to `main`
+- [x] Local verification: `mkdocs build --strict` passes
 
 ---
 
