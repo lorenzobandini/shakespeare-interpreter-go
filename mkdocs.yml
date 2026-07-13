@@ -7,6 +7,8 @@ edit_uri: edit/main/docs/
 
 theme:
   name: material
+  logo: assets/images/spl_go_logo.png
+  favicon: assets/spl_go_logo.ico
   palette:
     scheme: slate
     primary: indigo
@@ -24,7 +26,11 @@ plugins:
 
 markdown_extensions:
   - admonition
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.tabbed:
       alternate_style: true
   - pymdownx.highlight
@@ -57,6 +63,9 @@ extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/lorenzobandini/shakespeare-interpreter-go
+
+extra_javascript:
+  - https://unpkg.com/mermaid@10/dist/mermaid.min.js
 
 exclude_docs: |
   superpowers/

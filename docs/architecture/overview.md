@@ -2,51 +2,69 @@
 
 The interpreter follows a four-stage pipeline: **Lexer → Parser → Semantic Analyzer → Runtime**.
 
-```text
-Source (.shpl)
-    │
-    ▼
-┌─────────────┐
-│   Lexer     │  → Token stream ([]Token)
-│             │    Errors: L001, L002
-└─────────────┘
-    │
-    ▼
-┌─────────────┐
-│   Parser    │  → Abstract Syntax Tree (*ast.Program)
-│             │    Errors: S001–S018
-└─────────────┘
-    │
-    ▼
-┌─────────────┐
-│  Semantic   │  → Validated AST + SymbolTable + Stage state
-│  Analyzer   │    Errors: M001–M008
-└─────────────┘
-    │
-    ▼
-┌─────────────┐
-│  Runtime    │  → Program output (stdout) + exit code
-│  (Evaluate) │    Errors: R001–R004
-└─────────────┘
+```mermaid
+graph LR
+  Source["Source (.shpl)"]
+  Lexer
+  Parser
+  Semantic["Semantic Analyzer"]
+  Runtime
+  Tokens["Token stream ([]Token)
+          L001, L002"]
+  AST["Abstract Syntax Tree
+       (*ast.Program)
+       S001–S018"]
+  Validated["Validated AST
+             SymbolTable
+             Stage state
+             M001–M008"]
+  Output["Program output
+          (stdout)
+          R001–R004"]
+
+  Source --> Lexer
+  Lexer -->|Tokens| Parser
+  Parser -->|AST| Semantic
+  Semantic -->|Validated| Runtime
+  Lexon -.-> Tokens
+  Parser -.-> AST
+  Semantic -.-> Validated
+  Runtime -.-> Output
+
+  linkStyle 0,1,2,3 stroke:#89b4fa,stroke-width:2px
+  linkStyle 4,5,6,7 stroke:#6c7086,stroke-width:1px,stroke-dasharray:3
 ```
 
 ## Package dependency graph
 
-```
-cmd/shpl/          ← Cobra CLI entry points
-    │
-    ▼
-internal/lexer/    ← Token scanner
-internal/logger/   ← Structured slog handler
-    │
-    ▼
-internal/parser/   ← Recursive descent parser, AST definitions, dictionary
-    │
-    ▼
-internal/semantic/ ← Symbol table, stage manager, validation
-    │
-    ▼
-internal/runtime/  ← Environment, instruction trampoline, I/O
+```mermaid
+graph TD
+  CLI["cmd/shpl/
+      Cobra CLI entry points"]
+  LEX["internal/lexer/
+      Token scanner"]
+  LOG["internal/logger/
+      Structured slog handler"]
+  PAR["internal/parser/
+      Recursive descent parser
+      AST definitions
+      Dictionary"]
+  SEM["internal/semantic/
+      Symbol table
+      Stage manager
+      Validation"]
+  RUNT["internal/runtime/
+      Environment
+      Instruction trampoline
+      I/O"]
+
+  CLI --> LEX
+  CLI --> LOG
+  LEX --> PAR
+  PAR --> SEM
+  SEM --> RUNT
+
+  linkStyle 0,1,2,3,4 stroke:#89b4fa,stroke-width:2px
 ```
 
 Dependencies flow downward only. No package imports from a higher layer.
