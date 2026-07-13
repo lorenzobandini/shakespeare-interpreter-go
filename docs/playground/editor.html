@@ -190,7 +190,7 @@ textarea::placeholder { color: var(--text-dim); }
     <div id="output">Waiting for program…</div>
     <div class="input-row">
       <label for="stdin">stdin:</label>
-      <input id="stdin" type="text" placeholder="input for Listen / OpenMind">
+      <input id="stdin" type="text" placeholder="provided to program via Listen / OpenMind">
     </div>
   </div>
 </main>
@@ -270,7 +270,17 @@ Romeo:
 
 function loadExample(name) {
   if (name && examples[name]) {
+    const out = document.getElementById('output');
     document.getElementById('code').value = examples[name];
+    document.getElementById('stdin').value = '';
+    if (name === 'truth') {
+      document.getElementById('stdin').value = '0';
+      out.innerHTML = 'Enter "0" or "1" in stdin, then click Run.\nInput "0" → outputs 0 and halts.\nInput "1" → outputs 1 then R003 (EOF) — expected, the loop ran until stdin was exhausted.';
+    } else if (name === 'hello') {
+      out.innerHTML = 'Assigns flower (value 1) to Juliet, then outputs 1 via OpenHeart.';
+    } else {
+      out.innerHTML = 'Waiting for program…';
+    }
   }
 }
 
