@@ -1,26 +1,38 @@
-# Stage 1: Build dell'eseguibile
-FROM golang:1.26.5-alpine AS builder
+# Stage 1: toolchain — pinned dev tools + source + dependencies
+FROM golang:1.26.5-alpine AS toolchain
+
+RUN apk add --no-cache curl ca-certificates git
 
 WORKDIR /app
 
-# Copia i file delle dipendenze per sfruttare il caching dei layer di Docker
+# Install Task
+RUN go install github.com/go-task/task/v3/cmd/task@v3.42.1
+
+# Install golangci-lint v2.12.2
+RUN curl -sSfL https://github.com/golangci/golangci-lint/releases/download/v2.12.2/golangci-lint-2.12.2-linux-amd64.tar.gz \
+    | tar -xz -C /usr/local/bin --strip=1 golangci-lint-2.12.2-linux-amd64/golangci-lint
+
+# Install govulncheck + goimports
+RUN go install golang.org/x/vuln/cmd/govulncheck@v1.2.3 \
+    && go install golang.org/x/tools/cmd/goimports@v0.30.0
+
+# Cache Go module downloads
 COPY go.mod go.sum ./
 RUN go mod download
 
-# Copia il resto del codice sorgente
+# Copy everything else (source, Taskfile.yaml, .golangci.yaml)
 COPY . .
 
-# Compila il binario statico, ottimizzato e senza informazioni di debug non necessarie
+# Build the static binary
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o shpl cmd/shpl/main.go
 
-# Stage 2: Immagine finale di esecuzione
-FROM alpine:3.19
+# Stage 2: check — run the full CI gate
+FROM toolchain AS check
+RUN task check
 
+# Stage 3: runtime — minimal image
+FROM alpine:3.19 AS runtime
 WORKDIR /root/
-
-# Copia il binario dallo stage di build
-COPY --from=builder /app/shpl .
-
-# Comando di default (mostra l'help della CLI)
+COPY --from=toolchain /app/shpl .
 ENTRYPOINT ["./shpl"]
 CMD ["--help"]

@@ -40,3 +40,13 @@ tasks:
         sh: date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo "unknown"
     cmds:
       - cmd: go build -ldflags="-s -w -X main.version={{.VERSION}} -X main.commit={{.COMMIT}} -X main.date={{.DATE}}" -o bin/shpl.exe cmd/shpl/main.go
+
+  docker:build:
+    desc: Build the minimal runtime Docker image
+    cmds:
+      - docker build -t shpl:latest .
+
+  docker:check:
+    desc: Run the full quality gate suite inside the container
+    cmds:
+      - docker build --target=check -t shpl:check .
