@@ -57,6 +57,6 @@ extra:
     - icon: fontawesome/brands/github
       link: https://github.com/lorenzobandini/shakespeare-interpreter-go
 
-exclude_docs:
-  - superpowers/
-  - .gitkeep
+exclude_docs: |
+  superpowers/
+  .gitkeep
