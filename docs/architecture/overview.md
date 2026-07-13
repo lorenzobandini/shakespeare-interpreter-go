@@ -26,7 +26,7 @@ graph LR
   Lexer -->|Tokens| Parser
   Parser -->|AST| Semantic
   Semantic -->|Validated| Runtime
-  Lexon -.-> Tokens
+  Lexer -.-> Tokens
   Parser -.-> AST
   Semantic -.-> Validated
   Runtime -.-> Output
