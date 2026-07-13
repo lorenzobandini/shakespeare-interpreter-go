@@ -230,7 +230,6 @@ Stand up official MkDocs + Material documentation site deployed to GitHub Pages.
 
 ## Future Phases (post-v1)
 
-- Official docs/wiki (GitHub Pages)
 - Language extensions / dialects
 - LSP server for editor integration
 - WASM build for browser playground
