@@ -186,24 +186,33 @@ Execute the program.
 - **Fix**: Replaced `"Am I as good as you?"` with `"Am I better than you?"`, restructured to 2 scenes matching the original 2001 Hasselström & Åslund spec. Golden files regenerated.
 - **Impact**: truth-machine now correctly loops on input "1" and halts on input "0".
 
-## Phase 5 — CLI Integration
+## Phase 5 — CLI Integration ✅
 
 Wire everything into the Cobra CLI.  
 **Dependency**: Phase 1-4 complete.
 
-- [ ] `shpl run <file>` — lex → parse → analyze → execute
-- [ ] `shpl tokens <file>` — lex only, output token stream
-- [ ] `shpl ast <file>` — lex + parse, output AST
-- [ ] `shpl repl` — interactive REPL
-- [ ] `shpl version` — version info
-- [ ] `shpl about` — about / credits
-- [ ] Global flags: `--debug` (enable debug logging), `--trace` (enable trace)
+- [x] `shpl run <file>` — lex → parse → analyze → execute
+- [x] `shpl tokens <file>` — lex only, output token stream
+- [x] `shpl ast <file>` — lex + parse, output AST
+- [x] `shpl repl` — interactive REPL (Replay-based Accumulating Buffer Model)
+- [x] `shpl version` — version info (ldflags-injected, also via `--version`)
+- [x] `shpl about` — about / credits
+- [x] Global flags: `--debug` (slog LevelDebug), `--trace` (pipeline stage markers on stderr + debug logging)
+- [x] Integration tests (17 tests): tokens, ast, run, version, about, trace, repl (basic, auto-declaration, rollback, trace-integration), help output
 
 ### Decisions
-- *(none yet)*
+- **D1**: Replay-based Accumulating Buffer Model chosen for REPL. No Phase 2/4 modifications — the full pipeline (lex → parse → analyze → execute) reruns from scratch on each submission. This avoids refactoring `runtime.env` (unexported) or `parser.*` (fragment methods unexported).
+- **D2**: `--trace` implies debug logging + pipeline stage markers on stderr (`--- TOKENS ---`, `--- AST ---`, `--- SEMANTIC ---`, `--- EXECUTE ---`). `--debug` enables debug logging only. Stage markers use `cmd.ErrOrStderr()` for testability.
+- **D3**: Buffer + input-cursor checkpoint/rollback on replay failure. Before each replay, the buffer length and recorded-input cursor are checkpointed. On failure, both are restored so the REPL remains usable after errors.
+- **D4**: Skeleton (`The REPL Session.\n\nAct I: The REPL Session.\nScene I: The REPL Session.\n\n`) is always prepended on the first submission, guaranteeing a valid SPL structure for auto-declared characters.
+- **D5**: Auto-declaration scans for character names in `[Enter]`, `[Exit]`, `[Exeunt]`, and dialogue speaker prefixes. Declarations are inserted before Act I. Characters explicitly declared by the user in the input text are detected via the `declared` map and not duplicated.
+- **D6**: Output slicing via byte-length prefix (`newOutput[lastOutputLen:]`), not line-by-line diff. Because stdin replay is deterministic and the buffer only grows, earlier outputs are always byte-prefixes of later outputs.
+- **D7**: `os.Exit(1)` eliminated from all command handlers — errors flow through Cobra's `RunE` return to `main()`'s error handler. Testability: all tests use `rootCmd.Execute() error`.
 
-### Remaining
-- Cobra wiring + integration tests
+### Trade-offs
+- **O(n²) replay complexity**: Each submission re-runs the full pipeline on the accumulated buffer. At human-typing scale (dozens of lines), this overhead is negligible.
+- **Infinite loops**: Programs with infinite loops (e.g., unterminated truth-machine) are incompatible with the replay model and are considered out of scope for the REPL.
+- **No stdin prompt customization**: The `input>` prompt is used when the program's `Listen`/`OpenMind` reads from stdin, with no configuration option.
 
 ---
 

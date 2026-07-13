@@ -31,5 +31,12 @@ tasks:
   build:
     desc: Compile the interpreter executable for Windows
     deps: [fmt]
+    vars:
+      VERSION:
+        sh: git describe --tags --always --dirty 2>/dev/null || echo "dev"
+      COMMIT:
+        sh: git rev-parse --short HEAD 2>/dev/null || echo "none"
+      DATE:
+        sh: date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo "unknown"
     cmds:
-      - go build -o bin/shpl.exe cmd/shpl/main.go
+      - cmd: go build -ldflags="-s -w -X main.version={{.VERSION}} -X main.commit={{.COMMIT}} -X main.date={{.DATE}}" -o bin/shpl.exe cmd/shpl/main.go
