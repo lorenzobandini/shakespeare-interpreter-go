@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPL Playground</title>
+<style>
+:root {
+  --bg: #1e1e2e;
+  --surface: #2a2a3e;
+  --border: #3a3a4e;
+  --text: #cdd6f4;
+  --text-dim: #6c7086;
+  --accent: #89b4fa;
+  --green: #a6e3a1;
+  --red: #f38ba8;
+  --blue: #89b4fa;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+header h1 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-right: auto;
+}
+header a {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 0.875rem;
+}
+header a:hover { text-decoration: underline; }
+#status {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  background: var(--border);
+  color: var(--text-dim);
+}
+#status.ready { background: var(--green); color: #000; }
+#status.error { background: var(--red); color: #000; }
+main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  overflow: hidden;
+}
+@media (max-width: 768px) {
+  main { grid-template-columns: 1fr; }
+}
+.panel {
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
+}
+.panel:last-child { border-right: none; }
+.panel-header {
+  padding: 0.75rem 1rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.panel-header .spacer { flex: 1; }
+select, button {
+  font-size: 0.8125rem;
+  padding: 0.375rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  transition: 0.15s;
+}
+select:hover, button:hover { border-color: var(--accent); }
+button.primary {
+  background: var(--accent);
+  color: #000;
+  font-weight: 600;
+  border-color: var(--accent);
+}
+button.primary:hover { opacity: 0.9; }
+button.danger {
+  background: transparent;
+  color: var(--red);
+  border-color: var(--red);
+}
+button.danger:hover { background: var(--red); color: #000; }
+textarea {
+  flex: 1;
+  background: var(--bg);
+  color: var(--text);
+  border: none;
+  outline: none;
+  padding: 1rem;
+  font-family: "Cascadia Code", "Fira Code", "JetBrains Mono", monospace;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  resize: none;
+  tab-size: 2;
+}
+textarea::placeholder { color: var(--text-dim); }
+#output {
+  flex: 1;
+  background: #000;
+  color: var(--green);
+  padding: 1rem;
+  font-family: "Cascadia Code", "Fira Code", "JetBrains Mono", monospace;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+#output .error { color: var(--red); }
+.input-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  font-size: 0.8125rem;
+}
+.input-row label { color: var(--text-dim); }
+.input-row input {
+  flex: 1;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.375rem 0.5rem;
+  font-family: monospace;
+  font-size: 0.8125rem;
+  outline: none;
+}
+.input-row input:focus { border-color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>SPL Playground</h1>
+  <span id="status">Loading WASM runtime…</span>
+  <a href="../">← Docs</a>
+</header>
+
+<main>
+  <div class="panel">
+    <div class="panel-header">
+      Source
+      <span class="spacer"></span>
+      <select id="examples" onchange="loadExample(this.value)">
+        <option value="">— Load example —</option>
+        <option value="hello">Hello World</option>
+        <option value="truth">Truth Machine</option>
+        <option value="stack">Stack Demo</option>
+        <option value="arithmetic">Arithmetic</option>
+      </select>
+      <button class="danger" onclick="clearCode()">Clear</button>
+    </div>
+    <textarea id="code" placeholder="Type your SPL program here…" spellcheck="false"></textarea>
+  </div>
+  <div class="panel">
+    <div class="panel-header">
+      <span>Output</span>
+      <span class="spacer"></span>
+      <button class="primary" id="runBtn" onclick="run()" disabled>Run</button>
+    </div>
+    <div id="output">Waiting for program…</div>
+    <div class="input-row">
+      <label for="stdin">stdin:</label>
+      <input id="stdin" type="text" placeholder="input for Listen / OpenMind">
+    </div>
+  </div>
+</main>
+
+<script src="../assets/wasm/wasm_exec.js"></script>
+<script>
+const examples = {
+  hello: `The Infamous Hello World Program.
+
+Romeo, a young man with a remarkable patience.
+Juliet, a likewise young woman of remarkable grace.
+
+Act I: Hamlet's insults and flattery.
+Scene I: The insulting of Romeo.
+
+[Enter Romeo and Juliet]
+
+Juliet:
+ Speak your mind!`,
+  truth: `The Truth Machine.
+
+Romeo, a young man with a remarkable patience.
+Juliet, a likewise young woman of remarkable grace.
+
+Act I: The Truth.
+Scene I: The Initialization.
+
+[Enter Romeo and Juliet]
+
+Juliet:
+ Listen to your heart!
+
+Scene II: The Looping Heart.
+
+Juliet:
+ Open your heart! Am I as good as a flower? If not, let us proceed to scene II.
+
+[Exeunt]`,
+  stack: `Stack Operations Demo.
+
+Romeo, a young man with a remarkable patience.
+Juliet, a likewise young woman of remarkable grace.
+
+Act I: The Stack.
+Scene I: Push and Pop.
+
+[Enter Romeo and Juliet]
+
+Romeo:
+ Remember a flower! Open your heart! Remember a vile coward! Open your heart! Recall! Open your heart!
+
+[Exeunt]`,
+  arithmetic: `Arithmetic Demo.
+
+Romeo, a young man with a remarkable patience.
+Juliet, a likewise young woman of remarkable grace.
+
+Act I: The Sums.
+Scene I: The Computations.
+
+[Enter Romeo and Juliet]
+
+Romeo:
+ You are the sum of a flower and a coward. Open your heart!
+ You are the product of a flower and a flower. Open your heart!
+ You are the difference between a flower and a coward. Open your heart!
+
+[Exeunt]`
+};
+
+function loadExample(name) {
+  if (name && examples[name]) {
+    document.getElementById('code').value = examples[name];
+  }
+}
+
+function clearCode() {
+  document.getElementById('code').value = '';
+  document.getElementById('output').textContent = 'Waiting for program…';
+}
+
+const go = new Go();
+let wasmReady = false;
+
+WebAssembly.instantiateStreaming(fetch('../assets/wasm/shpl.wasm'), go.importObject)
+  .then(result => {
+    go.run(result.instance);
+    wasmReady = true;
+    document.getElementById('status').textContent = 'Ready';
+    document.getElementById('status').className = 'ready';
+    document.getElementById('runBtn').disabled = false;
+  })
+  .catch(err => {
+    document.getElementById('status').textContent = 'Failed to load WASM';
+    document.getElementById('status').className = 'error';
+    document.getElementById('output').textContent = 'Error loading WASM: ' + err;
+  });
+
+function run() {
+  const code = document.getElementById('code').value.trim();
+  if (!code) return;
+  const stdin = document.getElementById('stdin').value;
+  const output = document.getElementById('output');
+  output.innerHTML = '';
+  document.getElementById('runBtn').disabled = true;
+  document.getElementById('status').textContent = 'Running…';
+  document.getElementById('status').className = '';
+
+  setTimeout(() => {
+    try {
+      const result = executeSPL(code, stdin);
+      let html = '';
+      if (result.output) {
+        html += escapeHtml(result.output);
+      }
+      if (result.error) {
+        html += '<div class="error">' + escapeHtml(result.error) + '</div>';
+      }
+      if (!result.output && !result.error) {
+        html = '(no output)';
+      }
+      output.innerHTML = html;
+    } catch (err) {
+      output.innerHTML = '<div class="error">' + escapeHtml(String(err)) + '</div>';
+    }
+    document.getElementById('runBtn').disabled = false;
+    document.getElementById('status').textContent = 'Ready';
+    document.getElementById('status').className = 'ready';
+  }, 50);
+}
+
+function escapeHtml(s) {
+  const div = document.createElement('div');
+  div.textContent = s;
+  return div.innerHTML;
+}
+</script>
+</body>
+</html>

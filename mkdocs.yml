@@ -49,6 +49,7 @@ nav:
   - CLI Reference:
     - Commands: cli/commands.md
     - REPL: cli/repl.md
+  - Playground: playground/index.md
   - Contributing: contributing.md
   - About: about.md
 

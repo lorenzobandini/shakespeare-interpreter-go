@@ -30,6 +30,9 @@ go.work.sum
 # Stray coverage artifact
 coverage
 
+# SDD ephemeral scratch space
+.superpowers/
+
 # Editor/IDE
 # .idea/
 # .vscode/

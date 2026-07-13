@@ -1,6 +1,6 @@
 # Shakespeare Interpreter
 
-![Shakespeare Interpreter](assets/images/image.png)
+![Shakespeare Interpreter](assets/images/spl_go_logo.png)
 
 A **Go-based interpreter** for the [Shakespeare Programming Language](http://shakespearelang.com/) (SPL),
 a Turing-complete esoteric language where programs read like Elizabethan plays.
