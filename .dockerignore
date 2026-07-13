@@ -1,5 +1,5 @@
 bin/
 .git/
+.github/
+docs/
 coverage.out
-Taskfile.yaml
-.golangci.yaml
