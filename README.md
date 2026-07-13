@@ -1,39 +1,30 @@
 # shakespeare-interpreter-go
 
-A Go-based interpreter for the [Shakespeare Programming Language](http://shakespearelang.com/) (SPL).  
-**Phase 0** — scaffolding and tooling setup.
+A Go-based interpreter for the [Shakespeare Programming Language](http://shakespearelang.com/) (SPL).
 
-## Prerequisites
+## Features
 
-- **Go 1.26.5**
-- **Task 3.x** — task runner
-- **golangci-lint v2** — static analysis
-- **govulncheck** — vulnerability scanning
-- **goimports** — import formatting
+- **Full pipeline** — lexer, parser, semantic analyzer, runtime interpreter
+- **Complete SPL support** — all canonical operations, control flow, I/O, stack
+- **Cobra CLI** — `run`, `tokens`, `ast`, `repl`, `version`, `about` subcommands
+- **Debugging** — `--debug` and `--trace` flags
+- **Cross-platform** — Go binary + Docker image
 
 ## Quick start
 
 ```sh
-task build          # compile → bin/shpl.exe  (Windows)
-./bin/shpl.exe      # or: go run cmd/shpl/main.go
-
-# Execute an SPL source file:
+task build
 ./bin/shpl.exe run examples/hello.shpl
 ```
 
-For a portable Linux binary:
+## Documentation
 
-```sh
-docker build -t shpl . && docker run --rm shpl
-```
+Full docs at **[lorenzobandini.github.io/shakespeare-interpreter-go](https://lorenzobandini.github.io/shakespeare-interpreter-go)** — includes installation, usage, architecture, SPL spec, error reference, and an interactive [WASM playground](https://lorenzobandini.github.io/shakespeare-interpreter-go/playground/editor.html).
 
 ## Development
 
 ```sh
-task check          # fmt → lint → vuln → test   (the pre-commit gate)
-task test           # go test -v -race -coverprofile=coverage.out ./...
-task fmt            # gofmt + goimports
-task lint           # golangci-lint run ./...
+task check          # fmt → lint → vuln → test   (pre-commit gate)
 ```
 
 ## License
