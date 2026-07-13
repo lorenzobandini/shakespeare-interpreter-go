@@ -14,7 +14,7 @@ A Go-based interpreter for the [Shakespeare Programming Language](http://shakesp
 
 ```sh
 task build
-./bin/shpl.exe run examples/hello.shpl
+./bin/shpl.exe run testdata/runtime/truth-machine.shpl
 ```
 
 ## Documentation
