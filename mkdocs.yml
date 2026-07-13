@@ -1,0 +1,62 @@
+site_name: Shakespeare Interpreter
+site_description: A Go-based interpreter for the Shakespeare Programming Language
+site_url: https://lorenzobandini.github.io/shakespeare-interpreter-go
+repo_url: https://github.com/lorenzobandini/shakespeare-interpreter-go
+repo_name: lorenzobandini/shakespeare-interpreter-go
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    scheme: slate
+    primary: indigo
+    accent: deep orange
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - toc.integrate
+    - content.code.copy
+
+plugins:
+  - search
+  - minify:
+      minify_html: true
+
+markdown_extensions:
+  - admonition
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: getting-started/installation.md
+    - Usage: getting-started/usage.md
+  - SPL Language:
+    - Specification: spl/specification.md
+    - Error Taxonomy: spl/errors.md
+  - Architecture:
+    - Pipeline Overview: architecture/overview.md
+    - Lexer: architecture/lexer.md
+    - Parser: architecture/parser.md
+    - Semantic Analysis: architecture/semantic.md
+    - Runtime: architecture/runtime.md
+  - CLI Reference:
+    - Commands: cli/commands.md
+    - REPL: cli/repl.md
+  - Contributing: contributing.md
+  - About: about.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/lorenzobandini/shakespeare-interpreter-go
+
+exclude_docs:
+  - superpowers/
+  - .gitkeep
