@@ -7,12 +7,12 @@
 - [x] Taskfile: `fmt`, `lint`, `vuln`, `test`, `check`, `build`
 - [x] golangci-lint v2 config (errcheck, govet, ineffassign, staticcheck, unused, bodyclose)
 - [x] Lefthook pre-commit → `task check`
-- [x] CI (GitHub Actions): checkout → setup-go → task → golangci-lint v7 → govulncheck → goimports → `task check`
+- [x] CI (GitHub Actions): checkout → setup-go → task → golangci/golangci-lint-action@v9 (v2.12.2) → govulncheck v1.5.0 → goimports v0.30.0 → `task check`
 - [x] Dockerfile: static linux binary, alpine base
 - [x] Dockerfile upgraded to 3-stage build (`toolchain` → `check` → `runtime`):
-  - `toolchain`: pinned dev tools (Task v3.42.1, golangci-lint v2.12.2, govulncheck v1.2.3, goimports v0.30.0)
+  - `toolchain`: pinned dev tools (Task v3.42.1, golangci-lint v2.12.2, govulncheck v1.5.0, goimports v0.30.0)
   - `check`: runs `task check` inside container — deterministic QA sandbox
-  - `runtime`: minimal alpine:3.19, only the `shpl` binary
+  - `runtime`: minimal alpine:3.24, only the `shpl` binary
 - [x] `.dockerignore` updated: passes `Taskfile.yaml`/`.golangci.yaml` for check stage
 - [x] `task docker:build` / `task docker:check` in Taskfile.yaml
 - [x] Structured logger (`internal/logger`, slog TextHandler, LevelInfo/LevelDebug)
@@ -237,7 +237,7 @@ Stand up official MkDocs + Material documentation site deployed to GitHub Pages.
 
 ## Phase 7 — Polish & Infrastructure ✅
 
-- [x] Docker: `alpine:3.19` → `alpine:3.21` (fix 2 high vulns)
+- [x] Docker: `alpine:3.19` → `alpine:3.24` (fix 2 high vulns)
 - [x] Playground: remove `{.md-button}` markup, add favicon to `editor.html`
 - [x] REPL resolution: phase-gated skeleton injection (fixes S002/S006/S007/S009), correct auto-declaration splice ordering, simplified `tryQuickParse`, output-prefix invariant, regression test suite. Reference: `docs/superpowers/plans/2026-07-14-repl-resolution.md`
 - [x] Dependabot config (gomod + docker + github-actions, weekly)

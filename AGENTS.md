@@ -80,4 +80,4 @@ go test -race ./internal/lexer/...
 
 ## Docker
 
-`Dockerfile` builds a static linux binary (`CGO_ENABLED=0 GOOS=linux`, `-ldflags="-s -w"`) on `golang:1.26.5-alpine`, runtime `alpine:3.19`, entry `./shpl --help`. Use this for a portable linux build; use `task build` for the local Windows `.exe`.
+`Dockerfile` builds a static linux binary (`CGO_ENABLED=0 GOOS=linux`, `-ldflags="-s -w"`) on `golang:1.26.5-alpine`, runtime `alpine:3.24`, entry `./shpl --help`. Use this for a portable linux build; use `task build` for the local Windows `.exe`.
