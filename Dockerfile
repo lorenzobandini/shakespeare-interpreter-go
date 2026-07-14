@@ -1,7 +1,7 @@
 # Stage 1: toolchain — pinned dev tools + source + dependencies
 FROM golang:1.26.5-alpine AS toolchain
 
-RUN apk add --no-cache curl ca-certificates git
+RUN apk add --no-cache curl ca-certificates git build-base
 
 WORKDIR /app
 
@@ -13,7 +13,7 @@ RUN curl -sSfL https://github.com/golangci/golangci-lint/releases/download/v2.12
     | tar -xz -C /usr/local/bin --strip=1 golangci-lint-2.12.2-linux-amd64/golangci-lint
 
 # Install govulncheck + goimports
-RUN go install golang.org/x/vuln/cmd/govulncheck@v1.2.3 \
+RUN go install golang.org/x/vuln/cmd/govulncheck@v1.5.0 \
     && go install golang.org/x/tools/cmd/goimports@v0.30.0
 
 # Cache Go module downloads
@@ -31,7 +31,7 @@ FROM toolchain AS check
 RUN task check
 
 # Stage 3: runtime — minimal image
-FROM alpine:3.19 AS runtime
+FROM alpine:3.21 AS runtime
 WORKDIR /root/
 COPY --from=toolchain /app/shpl .
 ENTRYPOINT ["./shpl"]
