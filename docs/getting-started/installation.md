@@ -13,24 +13,27 @@ Optionally (for development): `golangci-lint v2`, `govulncheck`, `goimports`.
 git clone https://github.com/lorenzobandini/shakespeare-interpreter-go.git
 cd shakespeare-interpreter-go
 task build
-./bin/shpl.exe --help
+./bin/spl --help
 ```
 
-`task build` produces a Windows `.exe`. For other platforms:
+The build target for your current platform (`.exe` on Windows, no extension on Linux/macOS).
+For cross-compilation:
 
 ```sh
-go build -o bin/shpl ./cmd/shpl/...
+task build:linux   # Linux amd64 → bin/spl
+task build:mac     # macOS amd64  → bin/spl
+task build:win     # Windows amd64 → bin/spl.exe
 ```
 
 ## Docker
 
 ```sh
-docker build -t shpl .
-docker run --rm shpl --help
+docker build -t spl .
+docker run --rm spl --help
 ```
 
 ## Verify
 
 ```sh
-./bin/shpl.exe version
+./bin/spl version
 ```

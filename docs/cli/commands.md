@@ -1,6 +1,6 @@
 # CLI Commands
 
-All commands are subcommands of `shpl`. `shpl --help` for a quick overview.
+All commands are subcommands of `spl`. `spl --help` for a quick overview.
 
 ## Global flags
 
@@ -9,39 +9,39 @@ All commands are subcommands of `shpl`. `shpl --help` for a quick overview.
 | `--debug` | Enable debug-level logging (`slog.LevelDebug`) |
 | `--trace` | Debug logging + pipeline stage markers on stderr |
 
-## `shpl run <file>`
+## `spl run <file>`
 
 Run an SPL file through the full pipeline.
 
 ```sh
-./bin/shpl.exe run testdata/runtime/hello.shpl
+./bin/spl run testdata/runtime/hello.spl
 ```
 
 Exit code 0 on success, 1 on any error.
 
-## `shpl tokens <file>`
+## `spl tokens <file>`
 
 Dump the token stream.
 
 ```sh
-./bin/shpl.exe tokens testdata/runtime/hello.shpl
+./bin/spl tokens testdata/runtime/hello.spl
 ```
 
 Output: `TYPE:LN:COL Lexeme` per line.
 
-## `shpl ast <file>`
+## `spl ast <file>`
 
 Dump the AST as indented JSON.
 
 ```sh
-./bin/shpl.exe ast testdata/runtime/hello.shpl
+./bin/spl ast testdata/runtime/hello.spl
 ```
 
-## `shpl repl`
+## `spl repl`
 
 Interactive REPL. See [REPL](repl.md) for details.
 
-## `shpl version`, `shpl about`
+## `spl version`, `spl about`
 
 Build info, credits, and licensing.
 

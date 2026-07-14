@@ -112,7 +112,7 @@ func parseStmtStr(t *testing.T, input string) Statement {
 // -- Existing canonical fixture tests --
 
 func TestParseHelloWorld(t *testing.T) {
-	prog := parseTokens(t, "../../testdata/lexer/hello.shpl")
+	prog := parseTokens(t, "../../testdata/lexer/hello.spl")
 	if prog.Title.Text != "The Infamous Hello World Program" {
 		t.Errorf("title: got %q", prog.Title.Text)
 	}
@@ -125,7 +125,7 @@ func TestParseHelloWorld(t *testing.T) {
 }
 
 func TestParseTruthMachine(t *testing.T) {
-	prog := parseTokens(t, "../../testdata/lexer/truth-machine.shpl")
+	prog := parseTokens(t, "../../testdata/lexer/truth-machine.spl")
 	if prog.Title.Text != "The Truth Machine" {
 		t.Errorf("title: got %q", prog.Title.Text)
 	}
@@ -135,14 +135,14 @@ func TestParseTruthMachine(t *testing.T) {
 }
 
 func TestParseMinimal(t *testing.T) {
-	prog := parseTokens(t, "../../testdata/lexer/minimal.shpl")
+	prog := parseTokens(t, "../../testdata/lexer/minimal.spl")
 	if len(prog.Acts) != 1 {
 		t.Errorf("acts: got %d", len(prog.Acts))
 	}
 }
 
 func TestParseCrossActPersistence(t *testing.T) {
-	prog := parseTokens(t, "../../testdata/parser/cross-act-persistence.shpl")
+	prog := parseTokens(t, "../../testdata/parser/cross-act-persistence.spl")
 	if len(prog.Acts) != 2 {
 		t.Fatalf("acts: got %d, want 2", len(prog.Acts))
 	}
@@ -630,15 +630,15 @@ func TestParseGotoReturn(t *testing.T) {
 
 func TestGoldenSnapshots(t *testing.T) {
 	fixtures := []string{
-		"../../testdata/lexer/minimal.shpl",
-		"../../testdata/lexer/hello.shpl",
-		"../../testdata/lexer/truth-machine.shpl",
-		"../../testdata/parser/arithmetic.shpl",
-		"../../testdata/parser/stack.shpl",
-		"../../testdata/parser/conditionals.shpl",
+		"../../testdata/lexer/minimal.spl",
+		"../../testdata/lexer/hello.spl",
+		"../../testdata/lexer/truth-machine.spl",
+		"../../testdata/parser/arithmetic.spl",
+		"../../testdata/parser/stack.spl",
+		"../../testdata/parser/conditionals.spl",
 	}
 	for _, path := range fixtures {
-		name := strings.TrimSuffix(filepath.Base(path), ".shpl")
+		name := strings.TrimSuffix(filepath.Base(path), ".spl")
 		t.Run(name, func(t *testing.T) {
 			tokens := lex(t, path)
 			p := New(tokens)
@@ -677,14 +677,14 @@ func TestParseErrors(t *testing.T) {
 		code string
 	}{
 		// S001 is tested in TestParseErrorS001Empty (empty input)
-		{"no characters", "../../testdata/parser/error-no-chars.shpl", "S002"},
-		{"bad act num", "../../testdata/parser/error-bad-act-num.shpl", "S005"},
-		{"bad scene num", "../../testdata/parser/error-bad-scene-num.shpl", "S008"},
-		{"no enter", "../../testdata/parser/error-no-enter.shpl", "S013"},
-		{"bad expression", "../../testdata/parser/error-bad-expr.shpl", "S015"},
-		{"bad if", "../../testdata/parser/error-bad-if.shpl", "S016"},
-		{"bad comparative", "../../testdata/parser/error-bad-comparative.shpl", "S017"},
-		{"bad stack", "../../testdata/parser/error-bad-stack.shpl", "S018"},
+		{"no characters", "../../testdata/parser/error-no-chars.spl", "S002"},
+		{"bad act num", "../../testdata/parser/error-bad-act-num.spl", "S005"},
+		{"bad scene num", "../../testdata/parser/error-bad-scene-num.spl", "S008"},
+		{"no enter", "../../testdata/parser/error-no-enter.spl", "S013"},
+		{"bad expression", "../../testdata/parser/error-bad-expr.spl", "S015"},
+		{"bad if", "../../testdata/parser/error-bad-if.spl", "S016"},
+		{"bad comparative", "../../testdata/parser/error-bad-comparative.spl", "S017"},
+		{"bad stack", "../../testdata/parser/error-bad-stack.spl", "S018"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

@@ -28,8 +28,8 @@ func TestSemanticErrorFormat(t *testing.T) {
 		},
 		{
 			name: "M001 with filename",
-			err:  SemanticError{Code: "M001", Msg: "character 'Banquo' is not declared", Line: 3, Col: 1, Filename: "play.shpl"},
-			want: "error[M001]: character 'Banquo' is not declared\n  --> play.shpl:3:1",
+			err:  SemanticError{Code: "M001", Msg: "character 'Banquo' is not declared", Line: 3, Col: 1, Filename: "play.spl"},
+			want: "error[M001]: character 'Banquo' is not declared\n  --> play.spl:3:1",
 		},
 		{
 			name: "M002",
@@ -315,56 +315,56 @@ func TestAnalyzeEmptyScenesDefensive(t *testing.T) {
 }
 
 func TestAnalyzeWalksMultipleActsWithPersistence(t *testing.T) {
-	res := analyzeFile(t, "../../testdata/semantic/primes-persistence.shpl")
+	res := analyzeFile(t, "../../testdata/semantic/primes-persistence.spl")
 	if !res.OK() {
 		t.Fatalf("expected zero errors, got %v", res.Errors)
 	}
 }
 
 func TestAnalyzeHelloWorld(t *testing.T) {
-	res := analyzeFile(t, "../../testdata/semantic/hello.shpl")
+	res := analyzeFile(t, "../../testdata/semantic/hello.spl")
 	if !res.OK() {
 		t.Fatalf("expected zero errors, got %v", res.Errors)
 	}
 }
 
 func TestAnalyzeMinimalValid(t *testing.T) {
-	res := analyzeFile(t, "../../testdata/semantic/minimal-valid.shpl")
+	res := analyzeFile(t, "../../testdata/semantic/minimal-valid.spl")
 	if !res.OK() {
 		t.Fatalf("expected zero errors, got %v", res.Errors)
 	}
 }
 
 func TestAnalyzeSelfTalk(t *testing.T) {
-	res := analyzeFile(t, "../../testdata/semantic/self-talk.shpl")
+	res := analyzeFile(t, "../../testdata/semantic/self-talk.spl")
 	if !res.OK() {
 		t.Fatalf("expected zero errors, got %v", res.Errors)
 	}
 }
 
 func TestAnalyzeOffStageValueRead(t *testing.T) {
-	res := analyzeFile(t, "../../testdata/semantic/off-stage-value-read.shpl")
+	res := analyzeFile(t, "../../testdata/semantic/off-stage-value-read.spl")
 	if !res.OK() {
 		t.Fatalf("expected zero errors (D2: off-stage value reads allowed), got %v", res.Errors)
 	}
 }
 
 func TestAnalyzeValidOperations(t *testing.T) {
-	res := analyzeFile(t, "../../testdata/semantic/valid-operations.shpl")
+	res := analyzeFile(t, "../../testdata/semantic/valid-operations.spl")
 	if !res.OK() {
 		t.Fatalf("expected zero errors, got %v", res.Errors)
 	}
 }
 
 func TestAnalyzeTruthMachine(t *testing.T) {
-	res := analyzeFile(t, "../../testdata/semantic/truth-machine.shpl")
+	res := analyzeFile(t, "../../testdata/semantic/truth-machine.spl")
 	if !res.OK() {
 		t.Fatalf("expected zero errors, got %v", res.Errors)
 	}
 }
 
 func TestM001UndeclaredEnter(t *testing.T) {
-	res := analyzeFile(t, "../../testdata/semantic/m001-undeclared-enter.shpl")
+	res := analyzeFile(t, "../../testdata/semantic/m001-undeclared-enter.spl")
 	if res.OK() {
 		t.Fatal("expected errors, got none")
 	}
@@ -375,7 +375,7 @@ func TestM001UndeclaredEnter(t *testing.T) {
 }
 
 func TestM001UndeclaredSpeaker(t *testing.T) {
-	res := analyzeFile(t, "../../testdata/semantic/m001-undeclared-speaker.shpl")
+	res := analyzeFile(t, "../../testdata/semantic/m001-undeclared-speaker.spl")
 	if res.OK() {
 		t.Fatal("expected errors, got none")
 	}
@@ -386,7 +386,7 @@ func TestM001UndeclaredSpeaker(t *testing.T) {
 }
 
 func TestM003StageOverflow(t *testing.T) {
-	res := analyzeFile(t, "../../testdata/semantic/m003-stage-overflow.shpl")
+	res := analyzeFile(t, "../../testdata/semantic/m003-stage-overflow.spl")
 	if res.OK() {
 		t.Fatal("expected errors, got none")
 	}
@@ -397,7 +397,7 @@ func TestM003StageOverflow(t *testing.T) {
 }
 
 func TestM004SpeakerNotOnStage(t *testing.T) {
-	res := analyzeFile(t, "../../testdata/semantic/m004-speaker-not-on-stage.shpl")
+	res := analyzeFile(t, "../../testdata/semantic/m004-speaker-not-on-stage.spl")
 	if res.OK() {
 		t.Fatal("expected errors, got none")
 	}
@@ -408,7 +408,7 @@ func TestM004SpeakerNotOnStage(t *testing.T) {
 }
 
 func TestM004EmptyStageCrossAct(t *testing.T) {
-	res := analyzeFile(t, "../../testdata/semantic/m004-empty-stage-cross-act.shpl")
+	res := analyzeFile(t, "../../testdata/semantic/m004-empty-stage-cross-act.spl")
 	if res.OK() {
 		t.Fatal("expected errors, got none")
 	}
@@ -419,7 +419,7 @@ func TestM004EmptyStageCrossAct(t *testing.T) {
 }
 
 func TestM005ExitNotOnStage(t *testing.T) {
-	res := analyzeFile(t, "../../testdata/semantic/m005-exit-not-on-stage.shpl")
+	res := analyzeFile(t, "../../testdata/semantic/m005-exit-not-on-stage.spl")
 	if res.OK() {
 		t.Fatal("expected errors, got none")
 	}
@@ -430,7 +430,7 @@ func TestM005ExitNotOnStage(t *testing.T) {
 }
 
 func TestM006UndefinedScene(t *testing.T) {
-	res := analyzeFile(t, "../../testdata/semantic/m006-undefined-scene.shpl")
+	res := analyzeFile(t, "../../testdata/semantic/m006-undefined-scene.spl")
 	if res.OK() {
 		t.Fatal("expected errors, got none")
 	}
@@ -441,7 +441,7 @@ func TestM006UndefinedScene(t *testing.T) {
 }
 
 func TestM006UndefinedAct(t *testing.T) {
-	res := analyzeFile(t, "../../testdata/semantic/m006-undefined-act.shpl")
+	res := analyzeFile(t, "../../testdata/semantic/m006-undefined-act.spl")
 	if res.OK() {
 		t.Fatal("expected errors, got none")
 	}
@@ -452,7 +452,7 @@ func TestM006UndefinedAct(t *testing.T) {
 }
 
 func TestM007SelfEnter(t *testing.T) {
-	res := analyzeFile(t, "../../testdata/semantic/m007-self-enter.shpl")
+	res := analyzeFile(t, "../../testdata/semantic/m007-self-enter.spl")
 	if res.OK() {
 		t.Fatal("expected errors, got none")
 	}
@@ -463,7 +463,7 @@ func TestM007SelfEnter(t *testing.T) {
 }
 
 func TestAnalyzeMultipleErrors(t *testing.T) {
-	res := analyzeFile(t, "../../testdata/semantic/multiple-errors.shpl")
+	res := analyzeFile(t, "../../testdata/semantic/multiple-errors.spl")
 	if res.OK() {
 		t.Fatal("expected multiple errors, got none")
 	}
@@ -477,7 +477,7 @@ func TestAnalyzeMultipleErrors(t *testing.T) {
 }
 
 func TestGotoCrossActScene(t *testing.T) {
-	res := analyzeFile(t, "../../testdata/semantic/goto-cross-act-scene.shpl")
+	res := analyzeFile(t, "../../testdata/semantic/goto-cross-act-scene.spl")
 	if res.OK() {
 		t.Fatal("expected some errors (scene III doesn't exist in Act II), got none")
 	}

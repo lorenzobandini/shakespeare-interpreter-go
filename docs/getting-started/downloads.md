@@ -6,13 +6,13 @@ Pre-built binaries are published on the [GitHub Releases](https://github.com/lor
 
 ```sh
 docker pull ghcr.io/lorenzobandini/shakespeare-interpreter-go:latest
-docker run --rm shpl --help
+docker run --rm spl --help
 ```
 
 To run a program:
 
 ```sh
-docker run --rm -v $(pwd)/program.shpl:/program.shpl shpl run /program.shpl
+docker run --rm -v $(pwd)/program.spl:/program.spl spl run /program.spl
 ```
 
 ## Build from source

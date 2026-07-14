@@ -22,8 +22,8 @@ func TestRuntimeErrorFormat(t *testing.T) {
 		},
 		{
 			name: "R001 with filename",
-			err:  RuntimeError{Code: "R001", Msg: "division by zero at Act I, Scene II", Line: 3, Col: 7, Filename: "play.shpl"},
-			want: "error[R001]: division by zero at Act I, Scene II\n  --> play.shpl:3:7",
+			err:  RuntimeError{Code: "R001", Msg: "division by zero at Act I, Scene II", Line: 3, Col: 7, Filename: "play.spl"},
+			want: "error[R001]: division by zero at Act I, Scene II\n  --> play.spl:3:7",
 		},
 		{
 			name: "R002",
@@ -61,14 +61,14 @@ func TestNewEnv(t *testing.T) {
 	if err != nil {
 		t.Fatalf("parse error: %v", err)
 	}
-	res := semantic.New("test.shpl", prog).Analyze(prog)
+	res := semantic.New("test.spl", prog).Analyze(prog)
 	if !res.OK() {
 		t.Fatalf("semantic errors: %v", res.Errors)
 	}
 
 	var inBuf bytes.Buffer
 	outBuf := &bytes.Buffer{}
-	e := NewEnv(prog, res, &inBuf, outBuf, "test.shpl")
+	e := NewEnv(prog, res, &inBuf, outBuf, "test.spl")
 
 	if v, ok := e.values["romeo"]; !ok || v != 0 {
 		t.Errorf("values[romeo] = %d, %v; want 0, true", v, ok)
@@ -79,8 +79,8 @@ func TestNewEnv(t *testing.T) {
 	if e.stage.Size() != 0 {
 		t.Errorf("stage.Size() = %d; want 0", e.stage.Size())
 	}
-	if e.filename != "test.shpl" {
-		t.Errorf("filename = %q; want 'test.shpl'", e.filename)
+	if e.filename != "test.spl" {
+		t.Errorf("filename = %q; want 'test.spl'", e.filename)
 	}
 	if e.acts == nil {
 		t.Error("acts is nil")

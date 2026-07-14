@@ -24,7 +24,7 @@ RUN go mod download
 COPY . .
 
 # Build the static binary
-RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o shpl cmd/shpl/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o spl cmd/spl/main.go
 
 # Stage 2: check — run the full CI gate
 FROM toolchain AS check
@@ -33,6 +33,6 @@ RUN task check
 # Stage 3: runtime — minimal image
 FROM alpine:3.24 AS runtime
 WORKDIR /root/
-COPY --from=toolchain /app/shpl .
-ENTRYPOINT ["./shpl"]
+COPY --from=toolchain /app/spl .
+ENTRYPOINT ["./spl"]
 CMD ["--help"]

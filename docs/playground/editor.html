@@ -293,7 +293,7 @@ function clearCode() {
 const go = new Go();
 let wasmReady = false;
 
-WebAssembly.instantiateStreaming(fetch('../assets/wasm/shpl.wasm'), go.importObject)
+WebAssembly.instantiateStreaming(fetch('../assets/wasm/spl.wasm'), go.importObject)
   .then(result => {
     go.run(result.instance);
     wasmReady = true;

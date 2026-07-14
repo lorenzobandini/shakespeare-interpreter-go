@@ -8,7 +8,7 @@ written in Go. SPL is a Turing-complete esolang where programs look like Elizabe
 
 ```sh
 task build
-./bin/shpl.exe run testdata/runtime/hello.shpl
+./bin/spl run testdata/runtime/hello.spl
 ```
 
 For detailed instructions see [Installation](getting-started/installation.md) and [Usage](getting-started/usage.md).

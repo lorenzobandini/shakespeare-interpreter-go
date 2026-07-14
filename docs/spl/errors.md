@@ -93,7 +93,7 @@ error[<CODE>]: <message>
 Example:
 ```
 error[M001]: character 'Banquo' is not declared
-  --> program.shpl:3:1
+  --> program.spl:3:1
 ```
 
 ## Severity

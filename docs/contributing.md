@@ -22,13 +22,13 @@ This runs: `gofmt -s` → `goimports` → `golangci-lint` → `govulncheck` → 
 ## Project structure
 
 ```
-cmd/shpl/             — CLI entry points (Cobra)
+cmd/spl/              — CLI entry points (Cobra)
 internal/lexer/       — Token scanner
 internal/parser/      — Recursive descent parser + AST + dictionary
 internal/semantic/    — Semantic analysis + symbol table + stage manager
 internal/runtime/     — Interpreter evaluator
 internal/logger/      — Structured logger (slog)
-testdata/             — .shpl fixture files for table-driven tests
+testdata/             — .spl fixture files for table-driven tests
 docs/                 — Documentation (this site)
 ```
 

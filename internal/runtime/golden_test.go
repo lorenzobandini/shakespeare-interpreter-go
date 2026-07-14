@@ -19,10 +19,10 @@ var update = flag.Bool("update", false, "update golden files")
 
 func findSource(name string) string {
 	base := "../../testdata/runtime"
-	candidates := []string{name + ".shpl"}
+	candidates := []string{name + ".spl"}
 	for i := len(name) - 1; i >= 0; i-- {
 		if name[i] == '-' {
-			candidates = append(candidates, name[:i]+".shpl")
+			candidates = append(candidates, name[:i]+".spl")
 		}
 	}
 	for _, c := range candidates {
@@ -31,7 +31,7 @@ func findSource(name string) string {
 			return p
 		}
 	}
-	return filepath.Join(base, name+".shpl")
+	return filepath.Join(base, name+".spl")
 }
 
 func runFixture(t *testing.T, name, stdin string) (string, error) {
@@ -39,7 +39,7 @@ func runFixture(t *testing.T, name, stdin string) (string, error) {
 	srcPath := findSource(name)
 	srcBytes, err := os.ReadFile(srcPath)
 	if err != nil {
-		t.Fatalf("read %s.shpl: %v", name, err)
+		t.Fatalf("read %s.spl: %v", name, err)
 	}
 	tokens, err := lexer.New(string(srcBytes)).ScanTokens()
 	if err != nil {
@@ -49,7 +49,7 @@ func runFixture(t *testing.T, name, stdin string) (string, error) {
 	if err != nil {
 		t.Fatalf("parse %s: %v", name, err)
 	}
-	res := semantic.New(name+".shpl", prog).Analyze(prog)
+	res := semantic.New(name+".spl", prog).Analyze(prog)
 	if !res.OK() {
 		t.Fatalf("semantic %s: %v", name, res.Errors)
 	}
@@ -58,7 +58,7 @@ func runFixture(t *testing.T, name, stdin string) (string, error) {
 		in = strings.NewReader(stdin)
 	}
 	out := &bytes.Buffer{}
-	err = Execute(prog, res, in, out, name+".shpl")
+	err = Execute(prog, res, in, out, name+".spl")
 	return out.String(), err
 }
 

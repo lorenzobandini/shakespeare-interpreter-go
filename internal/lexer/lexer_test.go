@@ -242,7 +242,7 @@ func TestScanTokensL002NotTriggered(t *testing.T) {
 }
 
 func TestScanFixtureHello(t *testing.T) {
-	tokens, err := readFixture("../../testdata/lexer/hello.shpl")
+	tokens, err := readFixture("../../testdata/lexer/hello.spl")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -255,7 +255,7 @@ func TestScanFixtureHello(t *testing.T) {
 }
 
 func TestScanFixtureTruthMachine(t *testing.T) {
-	tokens, err := readFixture("../../testdata/lexer/truth-machine.shpl")
+	tokens, err := readFixture("../../testdata/lexer/truth-machine.spl")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -265,7 +265,7 @@ func TestScanFixtureTruthMachine(t *testing.T) {
 }
 
 func TestScanFixtureMinimal(t *testing.T) {
-	tokens, err := readFixture("../../testdata/lexer/minimal.shpl")
+	tokens, err := readFixture("../../testdata/lexer/minimal.spl")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -275,7 +275,7 @@ func TestScanFixtureMinimal(t *testing.T) {
 }
 
 func TestScanFixtureBadCharL001(t *testing.T) {
-	_, err := readFixture("../../testdata/lexer/bad-char.shpl")
+	_, err := readFixture("../../testdata/lexer/bad-char.spl")
 	if err == nil {
 		t.Fatal("expected L001 error")
 	}
@@ -292,7 +292,7 @@ func TestGoldenSnapshots(t *testing.T) {
 	fixtures := []string{"hello", "truth-machine", "minimal"}
 	for _, name := range fixtures {
 		t.Run(name, func(t *testing.T) {
-			srcPath := filepath.Join("../../testdata/lexer", name+".shpl")
+			srcPath := filepath.Join("../../testdata/lexer", name+".spl")
 			goldenPath := filepath.Join("../../testdata/lexer", name+".golden.txt")
 			src, err := os.ReadFile(srcPath)
 			if err != nil {

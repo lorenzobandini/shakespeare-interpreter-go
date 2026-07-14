@@ -56,12 +56,12 @@ Both Lefthook (`lefthook.yml`, serial) and CI (`.github/workflows/ci.yml`) run e
 - `task lint` — `golangci-lint run ./...`
 - `task vuln` — `govulncheck ./...`
 - `task test` — `go test -v -race -coverprofile=coverage.out ./...`
-- `task build` — `go build -o bin/shpl.exe cmd/shpl/main.go` (Windows target; depends on `fmt`)
+- `task build` — `go build -o bin/spl{{exeExt}} cmd/spl/main.go` (current platform; depends on `fmt`)
 
 Single test / package (always pass `-race`, the suite uses it):
 
 ```
-go test -race -run TestName ./cmd/shpl/...
+go test -race -run TestName ./cmd/spl/...
 go test -race ./internal/lexer/...
 ```
 
@@ -82,9 +82,9 @@ go test -race ./internal/lexer/...
 - **Design-first**: before writing execution logic, outline a step-by-step plan ("Planning Agent" step) and model package boundaries / AST / class structure with Mermaid diagrams. Don't jump straight to code.
 - **Conventional Commits** are required for all commit messages.
 - **GoDoc comments** stay inline next to code. Language specification lives in `docs/spl/specification.md`. Keep `README.md` thin.
-- `testdata/{lexer,parser,semantic,runtime}` is the canonical home for `.shpl` fixtures used by table-driven and snapshot tests.
+- `testdata/{lexer,parser,semantic,runtime}` is the canonical home for `.spl` fixtures used by table-driven and snapshot tests.
 - **PROGRESS.md** in the repo root tracks completed work, open decisions, and remaining tasks. Update it after each meaningful unit of work.
 
 ## Docker
 
-`Dockerfile` builds a static linux binary (`CGO_ENABLED=0 GOOS=linux`, `-ldflags="-s -w"`) on `golang:1.26.5-alpine`, runtime `alpine:3.24`, entry `./shpl --help`. Use this for a portable linux build; use `task build` for the local Windows `.exe`.
+`Dockerfile` builds a static linux binary (`CGO_ENABLED=0 GOOS=linux`, `-ldflags="-s -w"`) on `golang:1.26.5-alpine`, runtime `alpine:3.24`, entry `./spl --help`. Use this for a portable linux build; use `task build` for the local platform binary.

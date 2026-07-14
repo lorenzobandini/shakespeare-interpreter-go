@@ -3,7 +3,7 @@
 ## Phase 0 — Scaffolding & Tooling ✅
 
 - [x] Go module initialized (`github.com/lorenzobandini/shakespeare-interpreter-go`), Go 1.26.5
-- [x] Directory layout: `cmd/shpl/`, `internal/{lexer,logger}`, `testdata/{lexer,parser,interpreter}`, `docs/`
+- [x] Directory layout: `cmd/spl/`, `internal/{lexer,logger}`, `testdata/{lexer,parser,interpreter}`, `docs/`
 - [x] Taskfile: `fmt`, `lint`, `vuln`, `test`, `check`, `build`
 - [x] golangci-lint v2 config (errcheck, govet, ineffassign, staticcheck, unused, bodyclose)
 - [x] Lefthook pre-commit → `task check`
@@ -12,7 +12,7 @@
 - [x] Dockerfile upgraded to 3-stage build (`toolchain` → `check` → `runtime`):
   - `toolchain`: pinned dev tools (Task v3.42.1, golangci-lint v2.12.2, govulncheck v1.5.0, goimports v0.30.0)
   - `check`: runs `task check` inside container — deterministic QA sandbox
-  - `runtime`: minimal alpine:3.24, only the `shpl` binary
+  - `runtime`: minimal alpine:3.24, only the `spl` binary
 - [x] `.dockerignore` updated: passes `Taskfile.yaml`/`.golangci.yaml` for check stage
 - [x] `task docker:build` / `task docker:check` in Taskfile.yaml
 - [x] Structured logger (`internal/logger`, slog TextHandler, LevelInfo/LevelDebug)
@@ -22,7 +22,7 @@
 
 ## Phase 1 — Lexer ✅
 
-Tokenize `.shpl` source into a token stream.  
+Tokenize `.spl` source into a token stream.  
 **Dependency**: `docs/spl/specification.md`.
 
 - [x] Define token types (9 types: EOF, NEWLINE, WORD, PERIOD, COMMA, COLON, BANG, QUESTION, LBRACKET, RBRACKET)
@@ -30,9 +30,9 @@ Tokenize `.shpl` source into a token stream.
   - `ScanTokens()`, `ScanToken()`, `Token` struct with type/lexeme/line/col
   - Skip whitespace, emit NEWLINE tokens
   - L001 (control chars), L002 (unterminated bracket)
-- [x] Fixtures: `testdata/lexer/{hello,truth-machine,minimal,bad-char}.shpl`
+- [x] Fixtures: `testdata/lexer/{hello,truth-machine,minimal,bad-char}.spl`
 - [x] Tests: table-driven + golden snapshot (3 golden files generated)
-- [x] CLI subcommand: `shpl tokens <file.shpl>`
+- [x] CLI subcommand: `spl tokens <file.spl>`
 
 ### Decisions
 - [x] **Step 1.0** — Doc reconciliation complete. Cross-checked `spl_specification.md` and `error_taxonomy.md` against canonical reference (Grokipedia/Esolang). Found and corrected 10 material errors: (1) Exeunt with names is valid; (2) no-copula assignment is valid; (3) similes evaluate to the value, not 0; (4) `a vile coward` = -2; (5) stack ops `Remember`/`Recall` exist; (6) unary `square root`/`factorial` exist; (7) 7 comparative forms → 6 relations; (8) possessive pronouns are ignored like articles; (9) L001 fires only for control chars; (10) L001 example `@` is dubious (descriptions are free text). Added S017/S018 to `error_taxonomy.md`. Appended "Canonical Grammar (vetted)" section to `spl_specification.md`. Reference: `docs/superpowers/plans/2026-07-09-lexer-parser.md`.
@@ -62,7 +62,7 @@ Parse token stream into AST.
 - [x] Parse I/O statements (Speak, Open heart, Open mind, Listen)
 - [x] Parse questions, if-statements, goto (S016, S017)
 - [x] Parse stack operations Remember/Recall (S018)
-- [x] CLI subcommand: `shpl ast <file.shpl>`
+- [x] CLI subcommand: `spl ast <file.spl>`
 - [x] Canonical Hello World fixture parses successfully
 - [x] Canonical Truth Machine fixture parses successfully
 
@@ -78,7 +78,7 @@ Parse token stream into AST.
 ### Remaining (Phase 2)
 - [x] Expanded table-driven unit tests for each parse method
 - [x] Golden JSON snapshot tests for all 6 parser fixtures
-- [x] Parser fixtures: arithmetic.shpl, stack.shpl, conditionals.shpl + error fixtures
+- [x] Parser fixtures: `arithmetic.spl`, `stack.spl`, `conditionals.spl` + error fixtures
 - [x] Error fixture tests for S002, S005, S008, S013, S017
 
 ### Decisions
@@ -87,7 +87,7 @@ Parse token stream into AST.
 ### Phase 2 bugfix: `enterSeen` act-boundary reset
 - **Bug:** `parseActs()` reset `enterSeen` to `false` at every act boundary, causing S013 (`errMissingStage`) on valid programs where stage state carries across acts without a new `[Enter]` (e.g., `primes.spl` from the official zmbc/shakespearelang reference).
 - **Fix:** Hoisted `enterSeen` to the `parseActs()` scope (was per-act), threaded it through both the period-branch and colon-branch of act parsing.
-- **Verification:** `primes.spl` adapted excerpt (`testdata/parser/cross-act-persistence.shpl`) now parses without S013. Existing tests unaffected.
+- **Verification:** `primes.spl` adapted excerpt (`testdata/parser/cross-act-persistence.spl`) now parses without S013. Existing tests unaffected.
 - **Reference:** `docs/superpowers/plans/2026-07-10-phase3-semantic-analysis.md` Step 3.0.
 
 ### Remaining
@@ -130,24 +130,24 @@ Validate AST for semantic correctness (M001–M008).
 ### Fixtures
 | Fixture | Expected |
 |---------|----------|
-| `hello.shpl` | zero errors |
-| `truth-machine.shpl` | zero errors |
-| `minimal-valid.shpl` | zero errors |
-| `self-talk.shpl` | zero errors |
-| `off-stage-value-read.shpl` | zero errors (D2) |
-| `valid-operations.shpl` | zero errors |
-| `primes-persistence.shpl` | zero errors (D1) |
-| `m001-undeclared-enter.shpl` | M001 |
-| `m001-undeclared-speaker.shpl` | M001 |
-| `m003-stage-overflow.shpl` | M003 |
-| `m004-speaker-not-on-stage.shpl` | M004 |
-| `m004-empty-stage-cross-act.shpl` | M004 |
-| `m005-exit-not-on-stage.shpl` | M005 |
-| `m006-undefined-scene.shpl` | M006 |
-| `m006-undefined-act.shpl` | M006 |
-| `m007-self-enter.shpl` | M007 |
-| `multiple-errors.shpl` | M001 + M003 + M006 |
-| `goto-cross-act-scene.shpl` | M006 (scene III in Act II) |
+| `hello.spl` | zero errors |
+| `truth-machine.spl` | zero errors |
+| `minimal-valid.spl` | zero errors |
+| `self-talk.spl` | zero errors |
+| `off-stage-value-read.spl` | zero errors (D2) |
+| `valid-operations.spl` | zero errors |
+| `primes-persistence.spl` | zero errors (D1) |
+| `m001-undeclared-enter.spl` | M001 |
+| `m001-undeclared-speaker.spl` | M001 |
+| `m003-stage-overflow.spl` | M003 |
+| `m004-speaker-not-on-stage.spl` | M004 |
+| `m004-empty-stage-cross-act.spl` | M004 |
+| `m005-exit-not-on-stage.spl` | M005 |
+| `m006-undefined-scene.spl` | M006 |
+| `m006-undefined-act.spl` | M006 |
+| `m007-self-enter.spl` | M007 |
+| `multiple-errors.spl` | M001 + M003 + M006 |
+| `goto-cross-act-scene.spl` | M006 (scene III in Act II) |
 
 ## Phase 4 — Runtime / Evaluator ✅
 
@@ -163,7 +163,7 @@ Execute the program.
 - [x] 4.7: Questions, comparison flag, `If`/`Goto` branch resolution
 - [x] 4.8: Program flattening + trampoline `Execute`
 - [x] 4.9: Public `Execute` entry
-- [x] 4.10: `shpl run` CLI subcommand
+- [x] 4.10: `spl run` CLI subcommand
 - [x] 4.11: Canonical fixtures + golden-file tests + `task check` gate
 
 ### Decisions
@@ -179,16 +179,16 @@ Execute the program.
 ### Fixtures
 | Fixture | Expected |
 |---------|----------|
-| `hello.shpl` | byte(2) (STX) |
-| `branch.shpl` | `"1\n"` (if-not → jump to Scene II, OpenHeart) |
-| `stack.shpl` | `"1\n0\n0\n"` (push/pop/empty-pop) |
-| `io-ascii.shpl` (stdin "X") | `"X"` (read byte, echo) |
-| `truth-machine.shpl` (stdin "0\n") | `"0\n"` (greater-than comparison false → halt) |
-| `truth-machine-1.shpl` (stdin "1\n") | `"1\n"` then R003 (greater-than comparison true → loop → EOF) |
-| `divzero.shpl` | R001 error (divide by zero) |
+| `hello.spl` | byte(2) (STX) |
+| `branch.spl` | `"1\n"` (if-not → jump to Scene II, OpenHeart) |
+| `stack.spl` | `"1\n0\n0\n"` (push/pop/empty-pop) |
+| `io-ascii.spl` (stdin "X") | `"X"` (read byte, echo) |
+| `truth-machine.spl` (stdin "0\n") | `"0\n"` (greater-than comparison false → halt) |
+| `truth-machine-1.spl` (stdin "1\n") | `"1\n"` then R003 (greater-than comparison true → loop → EOF) |
+| `divzero.spl` | R001 error (divide by zero) |
 
 ### Post-hoc fix: truth-machine fixture
-- **Bug**: `testdata/{semantic,interpreter}/truth-machine.shpl` used `as good as` (equal) instead of canonical `better than` (greater). Introduced during Phase 2/3 fixture creation; invisible to semantic checks (only validates syntax, not runtime behavior).
+- **Bug**: `testdata/{semantic,runtime}/truth-machine.spl` used `as good as` (equal) instead of canonical `better than` (greater). Introduced during Phase 2/3 fixture creation; invisible to semantic checks (only validates syntax, not runtime behavior).
 - **Fix**: Replaced `"Am I as good as you?"` with `"Am I better than you?"`, restructured to 2 scenes matching the original 2001 Hasselström & Åslund spec. Golden files regenerated.
 - **Impact**: truth-machine now correctly loops on input "1" and halts on input "0".
 
@@ -197,12 +197,12 @@ Execute the program.
 Wire everything into the Cobra CLI.  
 **Dependency**: Phase 1-4 complete.
 
-- [x] `shpl run <file>` — lex → parse → analyze → execute
-- [x] `shpl tokens <file>` — lex only, output token stream
-- [x] `shpl ast <file>` — lex + parse, output AST
-- [x] `shpl repl` — interactive REPL (Replay-based Accumulating Buffer Model)
-- [x] `shpl version` — version info (ldflags-injected, also via `--version`)
-- [x] `shpl about` — about / credits
+- [x] `spl run <file>` — lex → parse → analyze → execute
+- [x] `spl tokens <file>` — lex only, output token stream
+- [x] `spl ast <file>` — lex + parse, output AST
+- [x] `spl repl` — interactive REPL (Replay-based Accumulating Buffer Model)
+- [x] `spl version` — version info (ldflags-injected, also via `--version`)
+- [x] `spl about` — about / credits
 - [x] Global flags: `--debug` (slog LevelDebug), `--trace` (pipeline stage markers on stderr + debug logging)
 - [x] Integration tests (17 tests): tokens, ast, run, version, about, trace, repl (basic, auto-declaration, rollback, trace-integration), help output
 
@@ -249,13 +249,5 @@ Stand up official MkDocs + Material documentation site deployed to GitHub Pages.
 - **D2**: ASCII art uses the `888` number form (aesthetic, not literal "SPL").
 - **D3**: GoDoc kept minimal — many existing comments were already sufficient. Added missing docs on `runtime.Execute`, `runtime.RuntimeError`, `symbol_table` methods.
 
-### Remaining (separate PR)
-- **SHPL → SPL rename**: `cmd/shpl/` → `cmd/spl/`, binary `spl.exe`, WASM `spl.wasm`, update all docs/CI/Cobra
 
-## Future Phases (post-v1)
-
-- Language extensions / dialects
-- LSP server for editor integration
-- WASM build for browser playground
-- Performance profiling and optimization
 

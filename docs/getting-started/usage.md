@@ -1,51 +1,51 @@
 # Usage
 
-The `shpl` binary has six subcommands. `--debug` and `--trace` work on all of them.
+The `spl` binary has six subcommands. `--debug` and `--trace` work on all of them.
 
-## `shpl run <file>`
+## `spl run <file>`
 
 Execute an SPL file through the full pipeline: lex → parse → analyze → run.
 
 ```sh
-./bin/shpl.exe run testdata/runtime/hello.shpl
+./bin/spl run testdata/runtime/hello.spl
 ```
 
-## `shpl tokens <file>`
+## `spl tokens <file>`
 
 Show what the lexer produces — one token per line.
 
 ```sh
-./bin/shpl.exe tokens testdata/runtime/hello.shpl
+./bin/spl tokens testdata/runtime/hello.spl
 ```
 
 Output: `TYPE:LN:COL Lexeme`.
 
-## `shpl ast <file>`
+## `spl ast <file>`
 
 Lex and parse, then dump the AST as indented JSON.
 
 ```sh
-./bin/shpl.exe ast testdata/runtime/hello.shpl
+./bin/spl ast testdata/runtime/hello.spl
 ```
 
-## `shpl repl`
+## `spl repl`
 
 Interactive session. Type SPL line by line, submit with a blank line.
 
 ```sh
-./bin/shpl.exe repl
+./bin/spl repl
 ```
 
 See [REPL](../cli/repl.md) for the full workflow.
 
-## `shpl version`, `shpl about`
+## `spl version`, `spl about`
 
 Build info and credits.
 
 ## Pipeline
 
 ```text
-Source (.shpl)  →  Lexer  →  Token stream  →  Parser  →  AST
+Source (.spl)  →  Lexer  →  Token stream  →  Parser  →  AST
                                                     ↓
                                               Semantic Analyzer
                                                     ↓

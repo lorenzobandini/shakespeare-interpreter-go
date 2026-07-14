@@ -4,7 +4,7 @@ The interpreter is a four-stage pipeline: **Lexer → Parser → Semantic Analyz
 
 ```mermaid
 graph LR
-  Source["Source (.shpl)"]
+  Source["Source (.spl)"]
   Lexer
   Parser
   Semantic["Semantic Analyzer"]
@@ -36,7 +36,7 @@ graph LR
 
 ```mermaid
 graph TD
-  CLI["cmd/shpl/
+  CLI["cmd/spl/
       Cobra CLI entry points"]
   LEX["internal/lexer/
       Token scanner"]

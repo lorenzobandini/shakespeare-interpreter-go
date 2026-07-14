@@ -1,6 +1,6 @@
 # REPL
 
-The REPL (`shpl repl`) provides an interactive environment for writing and testing
+The REPL (`spl repl`) provides an interactive environment for writing and testing
 SPL programs line by line.
 
 ## Phase model
