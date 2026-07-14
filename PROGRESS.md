@@ -246,8 +246,5 @@ Stand up official MkDocs + Material documentation site deployed to GitHub Pages.
 
 ### Key decisions
 - **D1**: Replaced lenient `tryQuickParse` with simple structural checks (bracket balance, open-expression heuristic). Pipeline runs only at phaseBody. Quick-parse catches only L002, unclosed brackets, and unclosed expressions. Reference: plan Step 5.4.
-- **D2**: ASCII art uses the `888` number form (aesthetic, not literal "SPL").
-- **D3**: GoDoc kept minimal — many existing comments were already sufficient. Added missing docs on `runtime.Execute`, `runtime.RuntimeError`, `symbol_table` methods.
-
-
+- **D2**: ASCII art uses the `888` number form (aesthetic, not literal "SPL").- **D3**: GoDoc kept minimal — many existing comments were already sufficient. Added missing docs on `runtime.Execute`, `runtime.RuntimeError`, `symbol_table` methods.
 
