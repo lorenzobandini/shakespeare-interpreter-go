@@ -207,16 +207,17 @@ Wire everything into the Cobra CLI.
 - [x] Integration tests (17 tests): tokens, ast, run, version, about, trace, repl (basic, auto-declaration, rollback, trace-integration), help output
 
 ### Decisions
-- **D1**: Replay-based Accumulating Buffer Model chosen for REPL. No Phase 2/4 modifications — the full pipeline (lex → parse → analyze → execute) reruns from scratch on each submission. This avoids refactoring `runtime.env` (unexported) or `parser.*` (fragment methods unexported).
+- **D1**: Phase-gated accumulating buffer: pre-body submits accumulate silently (no pipeline), pipeline runs only on first body-phase submit. This replaces the earlier "lenient quickParse" approach. Reference: `docs/superpowers/plans/2026-07-14-repl-resolution.md` Step 5.4.
 - **D2**: `--trace` implies debug logging + pipeline stage markers on stderr (`--- TOKENS ---`, `--- AST ---`, `--- SEMANTIC ---`, `--- EXECUTE ---`). `--debug` enables debug logging only. Stage markers use `cmd.ErrOrStderr()` for testability.
 - **D3**: Buffer + input-cursor checkpoint/rollback on replay failure. Before each replay, the buffer length and recorded-input cursor are checkpointed. On failure, both are restored so the REPL remains usable after errors.
-- **D4**: Skeleton (`The REPL Session.\n\nAct I: The REPL Session.\nScene I: The REPL Session.\n\n`) is always prepended on the first submission, guaranteeing a valid SPL structure for auto-declared characters.
-- **D5**: Auto-declaration scans for character names in `[Enter]`, `[Exit]`, `[Exeunt]`, and dialogue speaker prefixes. Declarations are inserted before Act I. Characters explicitly declared by the user in the input text are detected via the `declared` map and not duplicated.
+- **D4**: Phase-gated skeleton injection: skeleton (`[Title if missing] + existing buffer + Act I/Scene I`) is injected once on the first body-content submit without user-provided act headers. The title part goes at the buffer start, Act I/Scene I at the end, with existing user content (char decls) in the middle. No synthetic characters are invented — S002 genuinely surfaces if the user has no decls. Reference: plan Step 5.2.
+- **D5**: Auto-declaration scans for character names via `[Enter]`/`[Exit]`/`[Exeunt]` and dialogue speaker prefixes. Declarations are inserted before Act I, deduped case-insensitively against both explicit buffer declarations (via `extractDeclaredNames`) and already-auto-declared names (via `declared` map). Re-runs on every body submit; idempotent via dedup. Reference: plan Step 5.3.
 - **D6**: Output slicing via byte-length prefix (`newOutput[lastOutputLen:]`), not line-by-line diff. Because stdin replay is deterministic and the buffer only grows, earlier outputs are always byte-prefixes of later outputs.
 - **D7**: `os.Exit(1)` eliminated from all command handlers — errors flow through Cobra's `RunE` return to `main()`'s error handler. Testability: all tests use `rootCmd.Execute() error`.
+- **D8**: Output-prefix invariant: re-execution of `rs.buffer[:oldLen]` must reproduce `captureOut[:rs.lastOutputLen]` byte-for-byte. This holds because the pipeline is deterministic given source + recorded stdin. Violation is an internal error (buffer rollback, message printed, session continues). Reference: plan Step 5.5.
 
 ### Trade-offs
-- **O(n²) replay complexity**: Each submission re-runs the full pipeline on the accumulated buffer. At human-typing scale (dozens of lines), this overhead is negligible.
+- **O(n²) replay complexity**: Each body-phase submission re-runs the full pipeline on the accumulated buffer. At human-typing scale (dozens of lines), this overhead is negligible.
 - **Infinite loops**: Programs with infinite loops (e.g., unterminated truth-machine) are incompatible with the replay model and are considered out of scope for the REPL.
 - **No stdin prompt customization**: The `input>` prompt is used when the program's `Listen`/`OpenMind` reads from stdin, with no configuration option.
 
@@ -233,6 +234,23 @@ Stand up official MkDocs + Material documentation site deployed to GitHub Pages.
 - [x] Local verification: `mkdocs build --strict` passes
 
 ---
+
+## Phase 7 — Polish & Infrastructure ✅
+
+- [x] Docker: `alpine:3.19` → `alpine:3.21` (fix 2 high vulns)
+- [x] Playground: remove `{.md-button}` markup, add favicon to `editor.html`
+- [x] REPL resolution: phase-gated skeleton injection (fixes S002/S006/S007/S009), correct auto-declaration splice ordering, simplified `tryQuickParse`, output-prefix invariant, regression test suite. Reference: `docs/superpowers/plans/2026-07-14-repl-resolution.md`
+- [x] Dependabot config (gomod + docker + github-actions, weekly)
+- [x] Version command: ASCII art (`888`) + build metadata via ldflags
+- [x] Minimal GoDoc on public exported functions in `internal/*`
+
+### Key decisions
+- **D1**: Replaced lenient `tryQuickParse` with simple structural checks (bracket balance, open-expression heuristic). Pipeline runs only at phaseBody. Quick-parse catches only L002, unclosed brackets, and unclosed expressions. Reference: plan Step 5.4.
+- **D2**: ASCII art uses the `888` number form (aesthetic, not literal "SPL").
+- **D3**: GoDoc kept minimal — many existing comments were already sufficient. Added missing docs on `runtime.Execute`, `runtime.RuntimeError`, `symbol_table` methods.
+
+### Remaining (separate PR)
+- **SHPL → SPL rename**: `cmd/shpl/` → `cmd/spl/`, binary `spl.exe`, WASM `spl.wasm`, update all docs/CI/Cobra
 
 ## Future Phases (post-v1)
 
