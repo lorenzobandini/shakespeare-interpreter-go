@@ -33,6 +33,9 @@ coverage
 # SDD ephemeral scratch space
 .superpowers/
 
+# MkDocs build output
+site/
+
 # Editor/IDE
 # .idea/
 # .vscode/
