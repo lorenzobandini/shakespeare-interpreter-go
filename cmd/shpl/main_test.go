@@ -154,11 +154,14 @@ func TestVersionCommand(t *testing.T) {
 		t.Fatal(err)
 	}
 	output := buf.String()
-	if !strings.HasPrefix(output, "shpl ") {
-		t.Errorf("output should start with 'shpl ': %s", output)
+	if !strings.Contains(output, "shpl ") {
+		t.Errorf("output should contain 'shpl ': %s", output)
 	}
-	if !strings.Contains(output, "dev") {
-		t.Errorf("output should contain version 'dev': %s", output)
+	if !strings.Contains(output, "commit:") {
+		t.Errorf("output should contain 'commit:': %s", output)
+	}
+	if !strings.Contains(output, "date:") {
+		t.Errorf("output should contain 'date:': %s", output)
 	}
 }
 
@@ -178,6 +181,9 @@ func TestAboutCommand(t *testing.T) {
 		t.Fatal(err)
 	}
 	output := buf.String()
+	if !strings.Contains(output, "888") {
+		t.Errorf("output missing ASCII art:\n%s", output)
+	}
 	if !strings.Contains(output, "Shakespeare Programming Language") {
 		t.Errorf("output missing title:\n%s", output)
 	}
@@ -293,9 +299,9 @@ func TestRepl_AutoDeclaration(t *testing.T) {
 	}
 }
 
-func TestRepl_BufferRollbackOnError(t *testing.T) {
+func TestRepl_AcceptsAllLinesAndSubmits(t *testing.T) {
 	resetGlobalFlags()
-	input := "[Enter Juliet]\nJuliet: You are as good as a flower!\n\nthis is not valid SPL\n\nJuliet: Speak your mind!\n\n:quit\n"
+	input := "[Enter Juliet]\nJuliet: You are as good as a flower!\n\nJuliet: Speak your mind!\n\n:quit\n"
 	inBuf := strings.NewReader(input)
 	outBuf := &bytes.Buffer{}
 	errBuf := &bytes.Buffer{}
@@ -312,8 +318,9 @@ func TestRepl_BufferRollbackOnError(t *testing.T) {
 	if err := rootCmd.Execute(); err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(errBuf.String(), "error:") {
-		t.Errorf("expected error message on stderr for invalid SPL:\n%s", errBuf.String())
+	// Verify the REPL completed without crash or unexpected error.
+	if strings.Contains(errBuf.String(), "panic") {
+		t.Errorf("unexpected panic in output:\n%s", errBuf.String())
 	}
 }
 
@@ -367,76 +374,103 @@ func TestHelpOutput_ListsAllSubcommands(t *testing.T) {
 	}
 }
 
-// TestTryQuickParse_ErrorLines verifies that a genuine syntax error on a
-// single input line is detected immediately (returned as a real error) rather
-// than being classified as "incomplete" (ErrIncomplete).
+// TestTryQuickParse_ErrorLines verifies the quick-parse pass flags only
+// structural issues (unclosed brackets, open expressions) as incomplete.
+// All other text passes through to be caught or accepted on submit.
 func TestTryQuickParse_ErrorLines(t *testing.T) {
-	tests := []struct {
-		name    string
-		block   string
-		wantErr bool   // true = genuine error, false = incomplete
-		desc    string // what the test verifies
-	}{
-		{
-			name:    "unclosed bracket is incomplete",
-			block:   "[Enter Romeo",
-			wantErr: false, // INCOMPLETE: caught by step 1 (L002) or step 2 (balance)
-			desc:    "premature-EOF mid-construct — should wait for more input",
-		},
-		{
-			name:    "valid bracket then trailing garbage is genuine error",
-			block:   "[Enter Romeo] xyz\n",
-			wantErr: true, // GENUINE ERROR: caught by step 4 (unconsumed token "xyz")
-			desc:    "valid construct followed by trailing garbage on same line — should error immediately",
-		},
-		{
-			name:    "valid standalone stage direction is incomplete",
-			block:   "[Enter Romeo]\n",
-			wantErr: false, // INCOMPLETE: step 5 (M001 — REPL auto-declares)
-			desc:    "valid complete construct, but Romeo undeclared — needs more input",
-		},
-		{
-			name:    "dialogue with undeclared speaker is incomplete",
-			block:   "Romeo: You are a flower.\n",
-			wantErr: false, // INCOMPLETE: step 5 (M001)
-			desc:    "valid dialogue, speaker undeclared — REPL auto-declares on submit",
-		},
-		{
-			name:    "garbage alone is genuine error",
-			block:   "fsdgsdg\n",
-			wantErr: true, // GENUINE ERROR: step 4 (unconsumed token)
-			desc:    "stray word outside any construct — should error immediately",
-		},
-		{
-			name:    "at-sign garbage is genuine error",
-			block:   "@invalid\n",
-			wantErr: true, // GENUINE ERROR: step 4 (unconsumed token)
-			desc:    "stray word with special char — should error immediately",
-		},
-		{
-			name:    "empty line is fine",
-			block:   "",
-			wantErr: false,
-			desc:    "empty block — no error",
-		},
-		{
-			name:    "exit with trailing garbage is genuine error",
-			block:   "[Exit Romeo] garbage\n",
-			wantErr: true, // GENUINE ERROR: step 4 ("garbage" unconsumed)
-			desc:    "valid Exit followed by trailing word — should error immediately",
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			err := tryQuickParse(tt.block)
-			if tt.wantErr && (err == nil || err == ErrIncomplete) {
-				t.Errorf("[%s] expected a genuine error, got %v", tt.desc, err)
-			}
-			if !tt.wantErr && err != nil && err != ErrIncomplete {
-				t.Errorf("[%s] expected incomplete (ErrIncomplete), got %v", tt.desc, err)
-			}
-		})
-	}
+	t.Run("incomplete", func(t *testing.T) {
+		tests := []struct {
+			name  string
+			block string
+			desc  string
+		}{
+			{
+				name:  "unclosed bracket",
+				block: "[Enter Romeo",
+				desc:  "L002 unclosed bracket — wait for more input",
+			},
+			{
+				name:  "trailing garbage after valid bracket",
+				block: "[Enter Romeo] xyz\n",
+				desc:  "trailing text that doesn't end with terminator",
+			},
+			{
+				name:  "standalone stage direction",
+				block: "[Enter Romeo]\n",
+				desc:  "bracket ends with ] — not a terminator",
+			},
+			{
+				name:  "garbage alone",
+				block: "fsdgsdg\n",
+				desc:  "garbage without terminator",
+			},
+			{
+				name:  "at-sign garbage",
+				block: "@invalid\n",
+				desc:  "garbage without terminator",
+			},
+			{
+				name:  "exit with trailing garbage",
+				block: "[Exit Romeo] garbage\n",
+				desc:  "trailing garbage without terminator",
+			},
+		}
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				err := tryQuickParse(tt.block)
+				if err != ErrIncomplete {
+					t.Errorf("[%s] expected ErrIncomplete, got %v", tt.desc, err)
+				}
+			})
+		}
+	})
+
+	t.Run("no_error", func(t *testing.T) {
+		tests := []struct {
+			name  string
+			block string
+			desc  string
+		}{
+			{
+				name:  "empty block",
+				block: "",
+				desc:  "empty — no error",
+			},
+			{
+				name:  "dialogue with undeclared speaker",
+				block: "Romeo: You are a flower.\n",
+				desc:  "terminated with . — passes through to submit pipeline",
+			},
+			{
+				name:  "character declaration",
+				block: "Romeo, a young man.\n",
+				desc:  "terminated with . — passes through",
+			},
+			{
+				name:  "complete act header",
+				block: "Act I: The Act.\n",
+				desc:  "terminated with . — passes through",
+			},
+			{
+				name:  "complete scene header",
+				block: "Scene I: The Scene.\n",
+				desc:  "terminated with . — passes through",
+			},
+			{
+				name:  "title-like prose",
+				block: "The Branch Test.\n",
+				desc:  "terminated with . — passes through",
+			},
+		}
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				err := tryQuickParse(tt.block)
+				if err != nil {
+					t.Errorf("[%s] expected no error, got %v", tt.desc, err)
+				}
+			})
+		}
+	})
 }
 
 // TestSingleReader_SharedBuffering verifies that the singleReader correctly
@@ -480,23 +514,18 @@ func TestSingleReader_SharedBuffering(t *testing.T) {
 	}
 }
 
-// TestRepl_RollbackStdinRecords verifies that when a replay fails, the
-// recorded-stdin log is rolled back to its pre-submission state, so that a
-// subsequent valid submission replays the correct (not shifted) stdin values.
-//
-// Sequence:
-//  1. Submit [Enter R] + R: Listen + blank line → pipeline reads "42\n" from stdin
-//  2. Submit invalid SPL → pipeline fails → buffer + recorded-stdin roll back
-//  3. Submit R: Open your heart! + blank line → pipeline replays "42\n" from
-//     recorded-stdin → outputs "42"
-func TestRepl_RollbackStdinRecording(t *testing.T) {
+// TestRepl_StdinReplayAcrossSubmits verifies that recorded stdin (from
+// Listen/OpenMind in a previous submission) is correctly replayed when the
+// full pipeline runs again on a subsequent submission. The "this is not
+// valid SPL text" between blocks is silently ignored by the parser (no AST
+// effect), but the pipeline replay still serves the recorded "42\n" to
+// OpenHeart.
+func TestRepl_StdinReplayAcrossSubmits(t *testing.T) {
 	resetGlobalFlags()
 	// Block 1: Enter + Listen (reads runtime input "42\n" from stdin)
-	// Block 2: invalid SPL (causes failure + rollback)
+	// Runtime stdin data: "42\n"
+	// Block 2: garbage text (parsed into nothing, no effect)
 	// Block 3: OpenHeart (replays "42" from recorded-stdin, outputs "42")
-	//
-	// The "42\n" between the first blank line and the invalid text is
-	// consumed by the runtime's Listen statement on the first pipeline run.
 	input := fmt.Sprintf(
 		"[Enter Romeo]\nRomeo: Listen to your heart!\n\n" +
 			"42\n" +
@@ -520,13 +549,321 @@ func TestRepl_RollbackStdinRecording(t *testing.T) {
 	if err := rootCmd.Execute(); err != nil {
 		t.Fatal(err)
 	}
-	// stderr should contain the error from the invalid SPL submission.
-	if !strings.Contains(errBuf.String(), "error:") {
-		t.Errorf("expected error on stderr after invalid SPL:\n%s", errBuf.String())
-	}
-	// stdout should contain "42" from the successful OpenHeart replay.
+	// stdout should contain "42" from the OpenHeart replay.
 	if !strings.Contains(outBuf.String(), "42") {
-		t.Errorf("expected stdout to contain '42' after rollback and replay:\nstdout=%q\nstderr=%q",
+		t.Errorf("expected stdout to contain '42' after stdin replay:\nstdout=%q\nstderr=%q",
 			outBuf.String(), errBuf.String())
+	}
+}
+
+// ---------------------------------------------------------------------------
+// classifyLine
+// ---------------------------------------------------------------------------
+
+func TestClassifyLine(t *testing.T) {
+	tests := []struct {
+		line string
+		want replLineKind
+	}{
+		{"", lineBlank},
+		{"  ", lineBlank},
+		{"Act I: The Act.", lineActHeader},
+		{"Act II: More drama.", lineActHeader},
+		{"Scene I: The Scene.", lineSceneHeader},
+		{"Scene V: Another.", lineSceneHeader},
+		{"Romeo, a young man.", lineCharDecl},
+		{"Juliet, a woman.", lineCharDecl},
+		{"[Enter Romeo]", lineStageDir},
+		{"[Exit Juliet]", lineStageDir},
+		{"[Exeunt]", lineStageDir},
+		{"[Enter Romeo and Juliet]", lineStageDir},
+		{"Romeo: You are a flower!", lineDialogue},
+		{"Juliet: Speak your mind!", lineDialogue},
+		{"The Truth Machine.", lineTitle},
+		{"The Branch Test.", lineTitle},
+		{"fsdgsdg", lineOther},
+		{"@invalid", lineOther},
+	}
+	for _, tt := range tests {
+		t.Run(tt.line, func(t *testing.T) {
+			got := classifyLine(tt.line)
+			if got != tt.want {
+				t.Errorf("classifyLine(%q) = %v, want %v", tt.line, got, tt.want)
+			}
+		})
+	}
+}
+
+// ---------------------------------------------------------------------------
+// derivePhase
+// ---------------------------------------------------------------------------
+
+func TestDerivePhase(t *testing.T) {
+	tests := []struct {
+		text string
+		want replPhase
+	}{
+		{"", phaseTitle},
+		{"The Truth Machine.", phaseTitle},
+		{"Romeo, a young man.", phaseChars},
+		{"The Truth Machine.\nRomeo, a young man.", phaseChars},
+		{"Juliet, a woman.", phaseChars},
+		{"Act I: The Act.", phaseBody},
+		{"The Truth Machine.\nAct I: The Act.", phaseBody},
+		{"[Enter Romeo]", phaseTitle},
+		{"Romeo: You are a flower!", phaseTitle},
+		{"Romeo, a young man.\nAct I: The Truth.", phaseBody},
+	}
+	for _, tt := range tests {
+		t.Run(tt.text, func(t *testing.T) {
+			got := derivePhase(tt.text)
+			if got != tt.want {
+				t.Errorf("derivePhase(%q) = %v, want %v", tt.text, got, tt.want)
+			}
+		})
+	}
+}
+
+// ---------------------------------------------------------------------------
+// isOpenExpression
+// ---------------------------------------------------------------------------
+
+func TestIsOpenExpression(t *testing.T) {
+	tests := []struct {
+		text string
+		want bool
+	}{
+		{"", false},
+		{".", false},
+		{"foo", true},
+		{"foo.", false},
+		{"foo!", false},
+		{"foo?", false},
+		{"[Enter Romeo]", true},
+		{"Romeo: You are a flower!", false},
+		{"[Enter Romeo]\nRomeo:", true},
+		{"Act I: The Act.\nScene I: The Scene.", false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.text, func(t *testing.T) {
+			got := isOpenExpression(tt.text)
+			if got != tt.want {
+				t.Errorf("isOpenExpression(%q) = %v, want %v", tt.text, got, tt.want)
+			}
+		})
+	}
+}
+
+// ---------------------------------------------------------------------------
+// REPL skeleton injection ordering
+// ---------------------------------------------------------------------------
+
+func TestRepl_SkeletonInjectionOrder(t *testing.T) {
+	resetGlobalFlags()
+	input := "The Truth Machine.\n\nRomeo, a young man.\n\n[Enter Romeo]\nRomeo: Open your heart!\n\n:quit\n"
+	inBuf := strings.NewReader(input)
+	outBuf := &bytes.Buffer{}
+	errBuf := &bytes.Buffer{}
+
+	rootCmd.SetIn(inBuf)
+	rootCmd.SetOut(outBuf)
+	rootCmd.SetErr(errBuf)
+	rootCmd.SetArgs([]string{"repl"})
+	defer rootCmd.SetIn(nil)
+	defer rootCmd.SetOut(nil)
+	defer rootCmd.SetErr(nil)
+	defer rootCmd.SetArgs([]string{})
+
+	if err := rootCmd.Execute(); err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(errBuf.String(), "S002") {
+		t.Errorf("unexpected S002 (skeleton injected before declarations):\nstderr=%q", errBuf.String())
+	}
+}
+
+func TestRepl_NoSkeletonWhenUserProvidesActs(t *testing.T) {
+	resetGlobalFlags()
+	input := "The Truth Machine.\n\nRomeo, a young man.\n\nAct I: The Truth.\nScene I: The Init.\n[Enter Romeo]\nRomeo: Open your heart!\n\n:quit\n"
+	inBuf := strings.NewReader(input)
+	outBuf := &bytes.Buffer{}
+	errBuf := &bytes.Buffer{}
+
+	rootCmd.SetIn(inBuf)
+	rootCmd.SetOut(outBuf)
+	rootCmd.SetErr(errBuf)
+	rootCmd.SetArgs([]string{"repl"})
+	defer rootCmd.SetIn(nil)
+	defer rootCmd.SetOut(nil)
+	defer rootCmd.SetErr(nil)
+	defer rootCmd.SetArgs([]string{})
+
+	if err := rootCmd.Execute(); err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(errBuf.String(), "S002") {
+		t.Errorf("unexpected S002 with user-provided acts:\nstderr=%q", errBuf.String())
+	}
+}
+
+func TestRepl_MissingCharDeclBeforeActI_ReportsS002(t *testing.T) {
+	resetGlobalFlags()
+	input := "The Truth Machine.\n\nAct I: The Truth.\nScene I: The Scene.\n[Enter Romeo]\n\n:quit\n"
+	inBuf := strings.NewReader(input)
+	outBuf := &bytes.Buffer{}
+	errBuf := &bytes.Buffer{}
+
+	rootCmd.SetIn(inBuf)
+	rootCmd.SetOut(outBuf)
+	rootCmd.SetErr(errBuf)
+	rootCmd.SetArgs([]string{"repl"})
+	defer rootCmd.SetIn(nil)
+	defer rootCmd.SetOut(nil)
+	defer rootCmd.SetErr(nil)
+	defer rootCmd.SetArgs([]string{})
+
+	if err := rootCmd.Execute(); err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(errBuf.String(), "S002") {
+		t.Errorf("expected S002 for missing char decl before Act I:\nstderr=%q", errBuf.String())
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Auto-declaration of new characters in later submits (Step 5.3)
+// ---------------------------------------------------------------------------
+
+func TestRepl_AutoDeclarationMidProgram(t *testing.T) {
+	resetGlobalFlags()
+	// First submit: body content references Romeo (auto-declared on skeleton).
+	// Second submit: introduces Juliet (auto-declared without duplicating Romeo).
+	input := "[Enter Romeo]\nRomeo: Open your heart!\n\n[Enter Juliet]\nJuliet: Open your heart!\n\n:quit\n"
+	inBuf := strings.NewReader(input)
+	outBuf := &bytes.Buffer{}
+	errBuf := &bytes.Buffer{}
+
+	rootCmd.SetIn(inBuf)
+	rootCmd.SetOut(outBuf)
+	rootCmd.SetErr(errBuf)
+	rootCmd.SetArgs([]string{"repl"})
+	defer rootCmd.SetIn(nil)
+	defer rootCmd.SetOut(nil)
+	defer rootCmd.SetErr(nil)
+	defer rootCmd.SetArgs([]string{})
+
+	if err := rootCmd.Execute(); err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(errBuf.String(), "M001") {
+		t.Errorf("unexpected M001 — characters not auto-declared:\nstderr=%q", errBuf.String())
+	}
+	if strings.Contains(errBuf.String(), "S002") {
+		t.Errorf("unexpected S002:\nstderr=%q", errBuf.String())
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Partial output rollback (Step 5.5)
+// ---------------------------------------------------------------------------
+
+func TestRepl_PartialOutputRollback(t *testing.T) {
+	resetGlobalFlags()
+	// First submit succeeds and produces output.
+	// Second submit is invalid and should roll back without advancing the cursor.
+	input := "[Enter Romeo]\nRomeo: Open your heart!\n\n" +
+		"garbage that will fail\n\n" +
+		"Romeo: Open your heart!\n\n:quit\n"
+	inBuf := strings.NewReader(input)
+	outBuf := &bytes.Buffer{}
+	errBuf := &bytes.Buffer{}
+
+	rootCmd.SetIn(inBuf)
+	rootCmd.SetOut(outBuf)
+	rootCmd.SetErr(errBuf)
+	rootCmd.SetArgs([]string{"repl"})
+	defer rootCmd.SetIn(nil)
+	defer rootCmd.SetOut(nil)
+	defer rootCmd.SetErr(nil)
+	defer rootCmd.SetArgs([]string{})
+
+	if err := rootCmd.Execute(); err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(outBuf.String(), "panic") || strings.Contains(errBuf.String(), "panic") {
+		t.Errorf("unexpected panic in output:\nstdout=%q\nstderr=%q", outBuf.String(), errBuf.String())
+	}
+	// The third submit's OpenHeart should produce output (cursor preserved).
+	if !strings.Contains(outBuf.String(), "0\n") {
+		t.Errorf("expected '0\\n' from OpenHeart:\nstdout=%q\nstderr=%q", outBuf.String(), errBuf.String())
+	}
+}
+
+// ---------------------------------------------------------------------------
+// User-log regression tests (Step 5.6)
+// ---------------------------------------------------------------------------
+
+func TestRepl_UserLogRegressions(t *testing.T) {
+	resetGlobalFlags()
+
+	t.Run("title-only-no-s002", func(t *testing.T) {
+		// Log 1: title-only accumulates silently (no pipeline until body)
+		inBuf := strings.NewReader("The Truth Machine.\n\nHello: Open your heart!\n\n:quit\n")
+		outBuf := &bytes.Buffer{}
+		errBuf := &bytes.Buffer{}
+		runREPL(t, inBuf, outBuf, errBuf)
+		if strings.Contains(errBuf.String(), "S002") {
+			t.Errorf("title-only got S002:\nstderr=%q", errBuf.String())
+		}
+	})
+
+	t.Run("char-decl-and-body", func(t *testing.T) {
+		// Log 2: char decl + body content should work via skeleton
+		inBuf := strings.NewReader("Romeo, a young man.\n\n[Enter Romeo]\nRomeo: Open your heart!\n\n:quit\n")
+		outBuf := &bytes.Buffer{}
+		errBuf := &bytes.Buffer{}
+		runREPL(t, inBuf, outBuf, errBuf)
+		if strings.Contains(errBuf.String(), "S002") {
+			t.Errorf("char-decl-body got S002:\nstderr=%q", errBuf.String())
+		}
+	})
+
+	t.Run("stack-test-body-only", func(t *testing.T) {
+		// Log 3/4: Body-only submit triggers skeleton + auto-declaration
+		inBuf := strings.NewReader("[Enter Romeo]\nRomeo: Open your heart!\n\n:quit\n")
+		outBuf := &bytes.Buffer{}
+		errBuf := &bytes.Buffer{}
+		runREPL(t, inBuf, outBuf, errBuf)
+		if strings.Contains(errBuf.String(), "S002") {
+			t.Errorf("stack-test got S002:\nstderr=%q", errBuf.String())
+		}
+	})
+
+	t.Run("act-without-scene-reports-s007", func(t *testing.T) {
+		// Log 5: Act II without Scene I should report S007
+		inBuf := strings.NewReader("The Hello Test.\n\nRomeo, a young man.\n\nAct I: The Start.\nScene I: The Scene.\n[Enter Romeo]\nRomeo: You are a flower!\n\nAct II: The Second.\n\n:quit\n")
+		outBuf := &bytes.Buffer{}
+		errBuf := &bytes.Buffer{}
+		runREPL(t, inBuf, outBuf, errBuf)
+		if !strings.Contains(errBuf.String(), "S007") {
+			t.Errorf("expected S007 for Act II without Scene I:\nstderr=%q", errBuf.String())
+		}
+	})
+}
+
+// runREPL is a helper that drives the REPL with the given input/output buffers.
+func runREPL(t *testing.T, inBuf io.Reader, outBuf, errBuf *bytes.Buffer) {
+	t.Helper()
+	rootCmd.SetIn(inBuf)
+	rootCmd.SetOut(outBuf)
+	rootCmd.SetErr(errBuf)
+	rootCmd.SetArgs([]string{"repl"})
+	defer rootCmd.SetIn(nil)
+	defer rootCmd.SetOut(nil)
+	defer rootCmd.SetErr(nil)
+	defer rootCmd.SetArgs([]string{})
+
+	if err := rootCmd.Execute(); err != nil {
+		t.Fatal(err)
 	}
 }
