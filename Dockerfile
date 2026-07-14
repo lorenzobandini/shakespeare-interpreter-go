@@ -31,7 +31,7 @@ FROM toolchain AS check
 RUN task check
 
 # Stage 3: runtime — minimal image
-FROM alpine:3.21 AS runtime
+FROM alpine:3.24 AS runtime
 WORKDIR /root/
 COPY --from=toolchain /app/shpl .
 ENTRYPOINT ["./shpl"]
