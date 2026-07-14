@@ -38,11 +38,13 @@ func newSymbolTable(decls []parser.CharacterDecl) (SymbolTable, []SemanticError)
 	return SymbolTable{chars: chars}, errs
 }
 
+// Has reports whether the given lower-cased character name is declared.
 func (s SymbolTable) Has(lowerName string) bool {
 	_, ok := s.chars[lowerName]
 	return ok
 }
 
+// Get returns the character symbol for the given lower-cased name.
 func (s SymbolTable) Get(lowerName string) (CharacterSymbol, bool) {
 	sym, ok := s.chars[lowerName]
 	return sym, ok
@@ -60,6 +62,7 @@ func buildActRegistry(acts []parser.Act) ActRegistry {
 	return r
 }
 
+// Resolve looks up an act by its lower-cased Roman numeral.
 func (r ActRegistry) Resolve(lowerRoman string) (*parser.Act, bool) {
 	a, ok := r[lowerRoman]
 	return a, ok
@@ -77,6 +80,7 @@ func buildSceneRegistry(act *parser.Act) SceneRegistry {
 	return r
 }
 
+// Resolve looks up a scene by its lower-cased Roman numeral.
 func (r SceneRegistry) Resolve(lowerRoman string) (*parser.Scene, bool) {
 	s, ok := r[lowerRoman]
 	return s, ok

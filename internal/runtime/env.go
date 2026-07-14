@@ -26,6 +26,7 @@ type env struct {
 	filename          string
 }
 
+// NewEnv creates a runtime environment from a parsed program and semantic result.
 func NewEnv(prog *parser.Program, res semantic.Result, in io.Reader, out io.Writer, filename string) *env {
 	e := &env{
 		values:      make(map[string]int),
@@ -47,6 +48,7 @@ func NewEnv(prog *parser.Program, res semantic.Result, in io.Reader, out io.Writ
 	return e
 }
 
+// Execute runs the full SPL program: flatten to instructions then evaluate.
 func Execute(prog *parser.Program, res semantic.Result, in io.Reader, out io.Writer, filename string) error {
 	if !res.OK() {
 		return fmt.Errorf("semantic analysis failed: %d error(s)", len(res.Errors))

@@ -2,6 +2,7 @@ package runtime
 
 import "fmt"
 
+// RuntimeError represents an error during program execution (R-codes).
 type RuntimeError struct {
 	Code, Msg string
 	Line, Col int
