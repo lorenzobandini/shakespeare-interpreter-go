@@ -43,6 +43,7 @@ nav:
   - Getting Started:
     - Installation: getting-started/installation.md
     - Usage: getting-started/usage.md
+    - Downloads: getting-started/downloads.md
   - SPL Language:
     - Specification: spl/specification.md
     - Error Taxonomy: spl/errors.md

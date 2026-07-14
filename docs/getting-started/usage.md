@@ -1,57 +1,48 @@
 # Usage
 
-The CLI provides six subcommands. Global flags `--debug` and `--trace` are available on all commands.
+The `shpl` binary has six subcommands. `--debug` and `--trace` work on all of them.
 
 ## `shpl run <file>`
 
-Execute a `.shpl` source file through the full pipeline: lex → parse → analyze → execute.
+Execute an SPL file through the full pipeline: lex → parse → analyze → run.
 
 ```sh
-./bin/shpl.exe run examples/hello.shpl
-```
-
-With tracing:
-
-```sh
-./bin/shpl.exe --trace run examples/hello.shpl
+./bin/shpl.exe run testdata/runtime/hello.shpl
 ```
 
 ## `shpl tokens <file>`
 
-Lex the source file and print the token stream.
+Show what the lexer produces — one token per line.
 
 ```sh
-./bin/shpl.exe tokens examples/hello.shpl
+./bin/shpl.exe tokens testdata/runtime/hello.shpl
 ```
+
+Output: `TYPE:LN:COL Lexeme`.
 
 ## `shpl ast <file>`
 
-Lex and parse the source file, then print the AST as nested JSON.
+Lex and parse, then dump the AST as indented JSON.
 
 ```sh
-./bin/shpl.exe ast examples/hello.shpl
+./bin/shpl.exe ast testdata/runtime/hello.shpl
 ```
 
 ## `shpl repl`
 
-Launch an interactive REPL session. Each submission is accumulated and replayed
-through the full pipeline. Characters are auto-declared on first use.
+Interactive session. Type SPL line by line, submit with a blank line.
 
 ```sh
 ./bin/shpl.exe repl
 ```
 
-Type SPL dialogue line by line. See [REPL](../cli/repl.md) for details.
+See [REPL](../cli/repl.md) for the full workflow.
 
-## `shpl version`
+## `shpl version`, `shpl about`
 
-Print the build version (injected via `-ldflags` at build time).
+Build info and credits.
 
-## `shpl about`
-
-Print credits and licensing information.
-
-## Pipeline overview
+## Pipeline
 
 ```text
 Source (.shpl)  →  Lexer  →  Token stream  →  Parser  →  AST
@@ -61,11 +52,11 @@ Source (.shpl)  →  Lexer  →  Token stream  →  Parser  →  AST
                                               Runtime / Execute
 ```
 
-Each stage validates its input and reports errors in a consistent format:
+Errors use consistent formatting:
 
 ```
 error[<CODE>]: <message>
   --> <file>:<line>:<col>
 ```
 
-See [Error Taxonomy](../spl/errors.md) for all error codes.
+See [Error Taxonomy](../spl/errors.md) for all codes.

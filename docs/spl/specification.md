@@ -266,30 +266,20 @@ Romeo:
 
 ---
 
-## Canonical Grammar (vetted)
+## Grammar notes
 
-> **Note:** This section was added after cross-checking the prose above against the
-> canonical SPL reference (https://grokipedia.com/page/Shakespeare_Programming_Language,
-> https://esolangs.org/wiki/Shakespeare). It corrects several errors and omissions
-> in the original prose. The parser and AST in `internal/parser/` implement this
-> vetted grammar. Existing prose is preserved as-is for historical reference.
-
-### Corrected and extended grammar
-
-#### Assignment forms (extended)
-The original prose documents only `You are <expression>.`. Canonical SPL also
-supports a **no-copula form** where a bare constant is assigned after `You`/`Thou`,
-terminated by `!` (or `.`). This is the "insult/praise" form used throughout the
-canonical Hello World Program:
+#### No-copula assignment form
+Besides `You are <expression>.`, SPL supports a **no-copula form** where a bare
+constant follows `You`/`Thou`, terminated by `!` (or `.`). This is the
+"insult/praise" form used throughout the canonical Hello World Program:
 ```
 You lying stupid fatherless big smelly half-witted coward!
 ```
 This is equivalent to `You are a [6 adjectives] coward!` — a constant with 6
 adjectives and a negative noun.
 
-#### Simile semantics (corrected)
-The original prose states: "`as adjective as` — evaluates to 0 but maintains
-grammatical flow." This is **wrong**. Similes evaluate to the referenced value:
+#### Simile semantics
+A simile like `as <adj> as <value>` evaluates to the referenced value, not to 0:
 ```
 You are as stupid as the difference between a handsome rich brave
  hero and thyself!      → value = the difference (NOT 0)
@@ -300,8 +290,7 @@ The adjective in `as <adj> as <value>` is grammatical filler (discarded for
 evaluation in expression context; captured in `AssignStmt.SimileAdj` for
 completeness).
 
-#### Constant evaluation (corrected example)
-The original prose example `a vile coward` → -4 is arithmetically wrong.
+#### Constant evaluation
 Each adjective doubles the magnitude once; the noun's sign provides the polarity.
 - `flower`         = +1 (positive noun, 0 adjectives)
 - `red flower`     = +2 (1 adjective × positive noun)
@@ -312,15 +301,13 @@ Each adjective doubles the magnitude once; the noun's sign provides the polarity
 
 Value = `noun_polarity × 2^adjective_count`.
 
-#### Stage management — Exeunt (corrected)
-The original prose says `[Exeunt]` exits all on stage. The canonical Hello World
-Program also uses `[Exeunt Ophelia and Hamlet]` to exit specific named characters.
-Both forms are valid:
+#### Stage management — Exeunt
+`[Exeunt]` exits all on stage. Named forms also exist:
 - `[Exeunt]` — exits all characters currently on stage
 - `[Exeunt A]` — exits character A
 - `[Exeunt A and B]` — exits characters A and B (matches the canonical Hello World)
 
-#### Stack operations (added — missing from original prose)
+#### Stack operations
 Each character has a LIFO stack. The current value is the top of the stack; an
 empty stack yields 0. Two operations manipulate the stack:
 - **`Remember <expr>.`** — pushes the value of `<expr>` onto the **listener's** stack.
@@ -330,17 +317,14 @@ empty stack yields 0. Two operations manipulate the stack:
   it as the **speaker's** new value (0 if empty). The text after `Recall` is
   semantically ignored dramatic filler: `Recall your tragic fate.`
 
-#### Additional unary operations (added)
-The original prose lists only `square`, `cube`, and `twice`. Canonical SPL also
-supports:
+#### Additional unary operations
+Besides `square`, `cube`, and `twice`, SPL also supports:
 - `the square root of A` — integer square root
 - `the factorial of A` — factorial
 
-#### Seven comparative forms (corrected)
-The original prose lists only 3 comparative forms (`better than`, `as good as`,
-`worse than`). Canonical SPL supports **7 syntactic forms** mapping to **6
-relations**, determined by adjective polarity (positive/negative) + presence of
-`not` + `as...as` vs `...than`:
+#### Comparative forms
+SPL has **7 syntactic forms** mapping to **6 relations**, determined by adjective
+polarity (positive/negative) + presence of `not` + `as...as` vs `...than`:
 
 | # | Form | Adjective polarity | Negated | Relation |
 |---|------|-------------------|---------|----------|
@@ -355,9 +339,8 @@ relations**, determined by adjective polarity (positive/negative) + presence of
 Adjective polarity: `good/better/big/large/fair/brave/sweet/...` = positive;
 `bad/worse/small/poor/ugly/...` = negative. Unknown comparative → positive (default).
 
-#### Extended pronoun reference (corrected)
-The original prose mentions only `yourself`/`thyself`. Canonical SPL has a full
-pronoun system:
+#### Extended pronoun reference
+SPL has a full pronoun system beyond `yourself`/`thyself`:
 - **Possessive (ignored like articles in constants):** `my`, `thy`, `your`, `his`,
   `her`, `mine`, `thine`
 - **Reflexive / self-reference:**
@@ -370,11 +353,10 @@ pronoun system:
   - `my father` = +1 (possessive `my` ignored; noun `father` = +1)
   - `yourself` = listener's current value
 
-#### Question and branch forms (corrected)
-The original prose shows `Is X better than Y?` with arbitrary X/Y. Canonical SPL
-primarily uses the fixed frame `Am I <comparative> you?` (speaker vs. listener).
-The `Is X <comparative> Y?` form is also supported in the parser. After a
-question, the response may be:
+#### Question and branch forms
+Questions use the fixed frame `Am I <comparative> you?` (speaker vs. listener).
+The `Is X <comparative> Y?` form is also supported. After a question, the
+response may be:
 - `If so, let us proceed to scene/act X.` — jump if question is true
 - `If not, let us proceed to scene/act X.` — jump if question is false
 - `If so, let us return to scene/act X.` — backward jump (true)
@@ -382,12 +364,12 @@ question, the response may be:
 - `Let us proceed to scene/act X.` — unconditional goto
 - `Let us return to scene/act X.` — unconditional goto
 
-#### Character names (clarified)
-Character names in the Dramatics Personae are **single words** in the canonical
-examples (Romeo, Juliet, Hamlet, Ophelia, etc.). Multi-word names like "Sir Andrew"
-are a possible v2 extension; v1 assumes single-word names.
+#### Character names
+Character names in the Dramatis Personae are **single words** (Romeo, Juliet,
+Hamlet, Ophelia, etc.). Multi-word names like "Sir Andrew" are a possible v2
+extension; v1 assumes single-word names.
 
-#### Lexical character policy (clarified)
+#### Lexical character policy
 The lexer recognizes only structural punctuation (`.` `,` `:` `!` `?` `[` `]`),
 newlines, and EOF. Everything else (including `@`, `/`, digits, `A/S`) folds into
 `WORD` tokens. This allows character descriptions to contain free-text punctuation

@@ -2,20 +2,19 @@
 
 **Package:** `internal/parser/`
 
-The parser converts a token stream from the lexer into an Abstract Syntax Tree (AST)
-using recursive descent.
+Converts a token stream into an AST using recursive descent.
 
 ## AST node types
 
 | Node | Purpose |
 |------|---------|
 | `Program` | Root — title, character declarations, acts |
-| `Title` | Program title line |
+| `Title` | Program title |
 | `CharacterDecl` | Dramatis Personae entry |
 | `Act` | Act with Roman numeral + scenes |
 | `Scene` | Scene with Roman numeral + statements |
 | `EnterStmt` / `ExitStmt` / `ExeuntStmt` | Stage directions |
-| `Dialogue` | Speaker + list of statements |
+| `Dialogue` | Speaker + statements |
 | `AssignStmt` | `You are <expr>.` or `You <constant>!` |
 | `SpeakStmt` / `OpenHeartStmt` / `OpenMindStmt` / `ListenStmt` | I/O |
 | `QuestionStmt` | `Am I <comparative> you?` |
@@ -26,22 +25,18 @@ using recursive descent.
 
 ## Dictionary
 
-The parser includes a curated dictionary of ~80 words classifying nouns (positive,
-negative, neutral), adjectives, comparatives, pronouns, articles, and Shakespeare
-character names. Unknown words default to positive noun (value +1) or unknown
-comparative positive polarity.
+~80 curated words classifying nouns (positive, negative, neutral), adjectives,
+comparatives, pronouns, articles, and Shakespeare character names. Unknown words
+default to positive noun (value +1) or positive comparative polarity.
 
-## Recursive descent
-
-Each grammar production has a dedicated `parse*` method:
+## Parse flow
 
 ```
-Parse()        → parseTitle → parseCharacters → parseActs → parseActs
-parseActs()    → parseAct   → parseScenes → parseSceneStatements
-parseExpressions() → parseConst, parseBinary, parseUnary, etc.
+Parse()        → title → characters → acts
+parseActs()    → per-act: scenes → scene statements
+parseExpressions() → constants → binary → unary → pronouns
 ```
 
-## Error codes (S001–S018)
+## Error codes
 
-See [Error Taxonomy](../spl/errors.md) for the full list of syntax error codes,
-including expected messages and examples.
+See [Error Taxonomy](../spl/errors.md) for S001–S018.

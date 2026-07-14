@@ -1,57 +1,51 @@
 # CLI Commands
 
-All commands are subcommands of `shpl`. Use `shpl --help` for an overview.
+All commands are subcommands of `shpl`. `shpl --help` for a quick overview.
 
 ## Global flags
 
 | Flag | Effect |
 |------|--------|
 | `--debug` | Enable debug-level logging (`slog.LevelDebug`) |
-| `--trace` | Enable debug logging + pipeline stage markers on stderr |
+| `--trace` | Debug logging + pipeline stage markers on stderr |
 
 ## `shpl run <file>`
 
-Execute a `.shpl` file through the full pipeline.
+Run an SPL file through the full pipeline.
 
 ```sh
-./bin/shpl.exe run examples/hello.shpl
+./bin/shpl.exe run testdata/runtime/hello.shpl
 ```
 
-Exit codes: 0 on success, 1 on any error (lexical, syntax, semantic, or runtime).
+Exit code 0 on success, 1 on any error.
 
 ## `shpl tokens <file>`
 
-Print the token stream from lexing.
+Dump the token stream.
 
 ```sh
-./bin/shpl.exe tokens examples/hello.shpl
+./bin/shpl.exe tokens testdata/runtime/hello.shpl
 ```
 
-Output format: `TYPE:LN:COL Lexeme` on each line.
+Output: `TYPE:LN:COL Lexeme` per line.
 
 ## `shpl ast <file>`
 
-Print the AST as indented JSON.
+Dump the AST as indented JSON.
 
 ```sh
-./bin/shpl.exe ast examples/hello.shpl
+./bin/shpl.exe ast testdata/runtime/hello.shpl
 ```
 
 ## `shpl repl`
 
-Launch an interactive REPL. See [REPL](repl.md) for details.
+Interactive REPL. See [REPL](repl.md) for details.
 
-## `shpl version`
+## `shpl version`, `shpl about`
 
-Print the build version.
-
-## `shpl about`
-
-Print credits and license information.
+Build info, credits, and licensing.
 
 ## Error format
-
-All errors use this format:
 
 ```
 error[<CODE>]: <message>

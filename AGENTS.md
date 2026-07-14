@@ -2,12 +2,19 @@
 
 ## Project status
 
-Phase 0 scaffolding — **no interpreter logic exists yet**:
-- `cmd/shpl/main.go` is a stub (`fmt.Println` only). Cobra is **not** wired up, even though `go.mod` lists `spf13/cobra` (and `pflag`, `mousetrap`) as indirect deps. Don't assume the CLI exists.
-- `internal/lexer`, `internal/logger` are minimal stubs.
-- `testdata/{lexer,parser,interpreter}` are empty placeholder dirs for future `.shpl` fixtures.
+All core phases are implemented:
 
-Target architecture (from the project plan, not yet implemented): Cobra CLI with subcommands `run`, `ast`, `tokens`, `repl`, `version`, `about`; global `--debug`/`--trace` flags; pipeline `lexer → parser → ast → runtime`; `internal/` packages with unidirectional dependencies; structured logging via `log/slog`.
+| Phase | Status |
+|-------|--------|
+| Scaffolding & tooling (Taskfile, lint, CI, Docker) | ✅ |
+| Lexer (L001–L002) | ✅ |
+| Parser (S001–S018, AST, dictionary) | ✅ |
+| Semantic analysis (M001–M008, symbol table, stage manager) | ✅ |
+| Runtime / Evaluator (R001–R004, trampoline execution) | ✅ |
+| CLI integration (Cobra, 6 subcommands, REPL, debug/trace) | ✅ |
+| Documentation (MkDocs site on GitHub Pages) | ✅ |
+
+Architecture: Cobra CLI with subcommands `run`, `ast`, `tokens`, `repl`, `version`, `about`; global `--debug`/`--trace` flags; pipeline `lexer → parser → semantic → runtime`; `internal/` packages with unidirectional dependencies; structured logging via `log/slog`.
 
 The authoritative SPL language reference is `docs/spl/specification.md`. Read it before implementing any lexer/parser/ast/runtime logic.
 The error taxonomy (`docs/spl/errors.md`) defines error codes (L001, S001, M001, R001) — use these for consistent error reporting across all phases.
@@ -75,7 +82,7 @@ go test -race ./internal/lexer/...
 - **Design-first**: before writing execution logic, outline a step-by-step plan ("Planning Agent" step) and model package boundaries / AST / class structure with Mermaid diagrams. Don't jump straight to code.
 - **Conventional Commits** are required for all commit messages.
 - **GoDoc comments** stay inline next to code. Language specification lives in `docs/spl/specification.md`. Keep `README.md` thin.
-- `testdata/{lexer,parser,interpreter}` is the canonical home for `.shpl` fixtures used by table-driven and snapshot tests.
+- `testdata/{lexer,parser,semantic,runtime}` is the canonical home for `.shpl` fixtures used by table-driven and snapshot tests.
 - **PROGRESS.md** in the repo root tracks completed work, open decisions, and remaining tasks. Update it after each meaningful unit of work.
 
 ## Docker

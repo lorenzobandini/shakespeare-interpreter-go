@@ -1,21 +1,14 @@
 # Shakespeare Interpreter
 
-A **Go-based interpreter** for the [Shakespeare Programming Language](http://shakespearelang.com/) (SPL),
-a Turing-complete esoteric language where programs read like Elizabethan plays.
-
-## Features
-
-- **Full pipeline** — lexer, parser, semantic analyzer, runtime interpreter
-- **Complete SPL support** — all canonical operations, control flow, I/O, stack
-- **Cobra CLI** — `run`, `tokens`, `ast`, `repl`, `version`, `about` subcommands
-- **Debugging** — `--debug` and `--trace` flags for development
-- **Portable** — cross-platform Go binary, Docker image available
+An interpreter for the [Shakespeare Programming Language](http://shakespearelang.com/) (SPL),
+written in Go. SPL is a Turing-complete esolang where programs look like Elizabethan plays
+— characters are variables, dialogue is arithmetic, stage directions control flow.
 
 ## Quick start
 
 ```sh
 task build
-./bin/shpl.exe run examples/hello.shpl
+./bin/shpl.exe run testdata/runtime/hello.shpl
 ```
 
 For detailed instructions see [Installation](getting-started/installation.md) and [Usage](getting-started/usage.md).
@@ -24,10 +17,10 @@ For detailed instructions see [Installation](getting-started/installation.md) an
 
 | Phase | Status |
 |-------|--------|
-| Scaffolding | ✅ |
-| Lexer | ✅ |
-| Parser | ✅ |
-| Semantic Analysis | ✅ |
-| Runtime / Evaluator | ✅ |
-| CLI Integration | ✅ |
-| **Documentation** | ✅ **this site** |
+| Scaffolding & tooling (Taskfile, lint, CI, Docker) | ✅ |
+| Lexer (L001–L002) | ✅ |
+| Parser (S001–S018, AST, dictionary) | ✅ |
+| Semantic analysis (M001–M008, symbol table, stage manager) | ✅ |
+| Runtime / Evaluator (R001–R004, trampoline execution) | ✅ |
+| CLI integration (Cobra, 6 subcommands, REPL, debug/trace) | ✅ |
+| Documentation | ✅ this site |

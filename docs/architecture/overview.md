@@ -1,6 +1,6 @@
 # Architecture Overview
 
-The interpreter follows a four-stage pipeline: **Lexer → Parser → Semantic Analyzer → Runtime**.
+The interpreter is a four-stage pipeline: **Lexer → Parser → Semantic Analyzer → Runtime**.
 
 ```mermaid
 graph LR
@@ -30,9 +30,6 @@ graph LR
   Parser -.-> AST
   Semantic -.-> Validated
   Runtime -.-> Output
-
-  linkStyle 0,1,2,3 stroke:#89b4fa,stroke-width:2px
-  linkStyle 4,5,6,7 stroke:#6c7086,stroke-width:1px,stroke-dasharray:3
 ```
 
 ## Package dependency graph
@@ -63,15 +60,13 @@ graph TD
   LEX --> PAR
   PAR --> SEM
   SEM --> RUNT
-
-  linkStyle 0,1,2,3,4 stroke:#89b4fa,stroke-width:2px
 ```
 
-Dependencies flow downward only. No package imports from a higher layer.
+Dependencies flow downward. No package imports from a higher layer.
 
-## Key design decisions
+## Key decisions
 
 - **Recursive descent parser** — one method per grammar production, no parser generator.
-- **Type-switch dispatch** in semantic analyzer and runtime (no Visitor pattern — YAGNI).
-- **Trampoline execution** — program flattened to `[]instr`, integer PC, no nested traversal.
-- **Replay-based REPL** — full pipeline rerun on each submission (O(n²) at human scale).
+- **Type-switch dispatch** in the semantic analyzer and runtime — no Visitor pattern.
+- **Trampoline execution** — the program is flattened to `[]instr` with an integer PC.
+- **Replay-based REPL** — reruns the full pipeline on each submission.

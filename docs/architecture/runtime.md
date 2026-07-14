@@ -2,19 +2,14 @@
 
 **Package:** `internal/runtime/`
 
-The runtime executes a semantically validated program by walking a flat instruction
-list via integer program counter (PC).
-
-## Execution model
-
-The program is **flattened** during `Execute()` into a single `[]instr` slice.
-Each instruction is a closure that mutates the environment. Control flow (goto/if)
-is PC-based — branching updates the PC directly.
+Walks a flat instruction list via integer program counter. The entire program is
+flattened to `[]instr` during `Execute()` — each instruction is a closure that
+mutates the environment.
 
 ## Environment
 
-- **Character values** — `map[string]int` (signed integers, initialized to 0)
-- **Character stacks** — `map[string][]int` (LIFO per character)
+- **Character values** — `map[string]int`, initialized to 0
+- **Character stacks** — `map[string][]int`, LIFO per character
 - **Comparison flag** — single `bool` set by the most recent question
 - **Stage** — reused from `internal/semantic.Stage`
 - **I/O buffers** — stdin reader, stdout/stderr writers
@@ -30,8 +25,8 @@ is PC-based — branching updates the PC directly.
 
 ## Stack operations
 
-- `Remember <expr>` — pushes value of `<expr>` onto listener's stack
-- `Recall` — pops listener's stack, assigns to speaker's value (0 if empty)
+- `Remember <expr>` — push value onto listener's stack
+- `Recall` — pop listener's stack, assign to speaker's value (0 if empty)
 
 ## Error codes
 
@@ -44,6 +39,5 @@ is PC-based — branching updates the PC directly.
 
 ## REPL compatibility
 
-The REPL uses a **replay-based accumulating buffer model**. Each submission
-re-runs the full pipeline on the accumulated buffer. This means infinite loops
-are incompatible with the REPL and considered out of scope.
+The REPL uses a replay-based accumulating buffer. Each submission re-runs the
+full pipeline, which means infinite loops are out of scope for the REPL.
