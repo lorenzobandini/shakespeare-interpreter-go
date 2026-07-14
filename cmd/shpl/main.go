@@ -59,7 +59,7 @@ var versionCmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		_, err := fmt.Fprintf(cmd.OutOrStdout(),
-			"shpl %s (commit %s, built %s)\n", version, commit, date)
+			"shpl %s\ncommit: %s\ndate:   %s\n", version, commit, date)
 		return err
 	},
 }
@@ -68,23 +68,31 @@ var versionCmd = &cobra.Command{
 // about subcommand
 // ---------------------------------------------------------------------------
 
-const aboutText = `Shakespeare Programming Language (SPL)
-Original language design: Karl Hasselström and Jon Åslund (2001)
-
-Reference implementation: zmbc/shakespearelang
-This implementation: https://github.com/lorenzobandini/shakespeare-interpreter-go
-
-Phase 1-4: Lexer, Parser, Semantic Analysis, Runtime
-Phase 5: CLI Integration (Cobra)
-Go version: 1.26.5
+const aboutASCII = `
+ .d8888b.  8888888b.  888      
+d88P  Y88b 888   Y88b 888      
+Y88b.      888    888 888      
+ "Y888b.   888   d88P 888      
+    "Y88b. 8888888P"  888      
+      "888 888        888      
+Y88b  d88P 888        888      
+ "Y8888P"  888        88888888 
 `
+
+const aboutText = "Shakespeare Programming Language (SPL)\n" +
+	"Original language design: Karl Hasselström and Jon Åslund (2001)\n" +
+	"\n" +
+	"Reference implementation: zmbc/shakespearelang\n" +
+	"This implementation: https://github.com/lorenzobandini/shakespeare-interpreter-go\n" +
+	"\n" +
+	"Go version: 1.26.5"
 
 var aboutCmd = &cobra.Command{
 	Use:   "about",
 	Short: "About the Shakespeare Programming Language",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		_, err := fmt.Fprint(cmd.OutOrStdout(), aboutText)
+		_, err := fmt.Fprintf(cmd.OutOrStdout(), "%s\n%s\n", aboutASCII, aboutText)
 		return err
 	},
 }
@@ -224,13 +232,131 @@ var (
 	speakerRe = regexp.MustCompile(`^([A-Za-z]\w*):`)
 )
 
+// Phases for the REPL state machine.
+type replPhase uint8
+
+const (
+	phaseTitle replPhase = iota
+	phaseChars
+	phaseBody
+	phaseClosed
+)
+
+// Classification of individual lines for phase transitions.
+type replLineKind uint8
+
+const (
+	lineBlank replLineKind = iota
+	lineTitle
+	lineCharDecl
+	lineActHeader
+	lineSceneHeader
+	lineStageDir
+	lineDialogue
+	lineOther
+)
+
+// classifyLine classifies a single line of SPL text using cheap
+// substring checks (no full parsing).
+func classifyLine(line string) replLineKind {
+	trimmed := strings.TrimSpace(line)
+	if trimmed == "" {
+		return lineBlank
+	}
+	lower := strings.ToLower(trimmed)
+	if strings.HasPrefix(lower, "act ") {
+		return lineActHeader
+	}
+	if strings.HasPrefix(lower, "scene ") {
+		return lineSceneHeader
+	}
+	if trimmed[0] == '[' && trimmed[len(trimmed)-1] == ']' {
+		return lineStageDir
+	}
+	if colIdx := strings.Index(trimmed, ":"); colIdx > 0 && colIdx < 60 {
+		before := trimmed[:colIdx]
+		if !strings.Contains(before, " ") && !strings.Contains(before, ",") {
+			return lineDialogue
+		}
+	}
+	if commaIdx := strings.Index(trimmed, ","); commaIdx > 0 && commaIdx < 60 {
+		before := trimmed[:commaIdx]
+		if !strings.Contains(before, " ") && !strings.Contains(before, ":") {
+			return lineCharDecl
+		}
+	}
+	if strings.HasSuffix(trimmed, ".") || strings.HasSuffix(trimmed, "!") || strings.HasSuffix(trimmed, "?") {
+		return lineTitle
+	}
+	return lineOther
+}
+
+// derivePhase determines the REPL phase from accumulated text.
+func derivePhase(text string) replPhase {
+	p := phaseTitle
+	for _, line := range strings.Split(text, "\n") {
+		switch classifyLine(line) {
+		case lineCharDecl:
+			if p == phaseTitle {
+				p = phaseChars
+			}
+		case lineActHeader:
+			p = phaseBody
+		}
+	}
+	return p
+}
+
+// hasBodyContent returns true if the text contains stage directions
+// or dialogue lines (i.e., needs a program structure around it).
+func hasBodyContent(text string) bool {
+	for _, line := range strings.Split(text, "\n") {
+		switch classifyLine(line) {
+		case lineStageDir, lineDialogue:
+			return true
+		}
+	}
+	return false
+}
+
+// extractDeclaredNames returns character names from explicit declarations
+// in text (lines matching the "Name, ..." pattern).
+func extractDeclaredNames(text string) []string {
+	var names []string
+	for _, line := range strings.Split(text, "\n") {
+		if classifyLine(line) == lineCharDecl {
+			if commaIdx := strings.Index(line, ","); commaIdx > 0 {
+				names = append(names, strings.TrimSpace(line[:commaIdx]))
+			}
+		}
+	}
+	return names
+}
+
+// hasTitle returns true if the text contains a title-like line.
+func hasTitle(text string) bool {
+	for _, line := range strings.Split(text, "\n") {
+		if classifyLine(line) == lineTitle {
+			return true
+		}
+	}
+	return false
+}
+
 // replState holds all mutable state across REPL turns.
+//
+// Invariant: re-execution of rs.buffer[:oldLen] must reproduce
+// captureOut[:rs.lastOutputLen] byte-for-byte. This holds because:
+// (i) the lexer/parser/semantic are pure functions of source text,
+// (ii) the runtime is deterministic given source + recorded stdin,
+// (iii) the buffer only grows on the success path.
 type replState struct {
 	out           io.Writer
 	err           io.Writer
 	buffer        bytes.Buffer
 	declared      map[string]bool
 	skeletonBuilt bool
+	phase         replPhase
 
 	// Output slicing.
 	lastOutputLen int
@@ -270,33 +396,68 @@ func extractChars(text string) []string {
 	return chars
 }
 
+// hasActOrScene reports whether the text contains "act" or "scene" at the
+// start of a line (outside of stage directions), indicating the user is
+// providing their own program structure.
+func hasActOrScene(text string) bool {
+	for _, line := range strings.Split(text, "\n") {
+		trimmed := strings.TrimSpace(line)
+		lower := strings.ToLower(trimmed)
+		if strings.HasPrefix(lower, "act ") || strings.HasPrefix(lower, "scene ") {
+			return true
+		}
+	}
+	return false
+}
+
 // replayBlock appends text, auto-declares, runs the pipeline, handles output
 // slicing and rollback.
 func (rs *replState) replayBlock(input string, sr *singleReader) error {
 	bufCheck := rs.buffer.Len()
 	recCheck := sr.recordCheckpoint()
+	prevSkeletonBuilt := rs.skeletonBuilt
 
-	// 1. Always insert skeleton on the first submission so that auto-declared
-	//    characters have a valid SPL structure to live in.
-	if !rs.skeletonBuilt {
-		rs.buffer.WriteString("The REPL Session.\n\nAct I: The REPL Session.\nScene I: The REPL Session.\n\n")
+	fullText := rs.buffer.String() + input + "\n"
+
+	// ---- Phase-gated skeleton injection (Step 5.2) ----
+	// Inject skeleton once, on the first submit where input has body-level
+	// content but no user-provided act/scene structure.
+	// Order: title (skeleton if missing) → existing buffer → Act I/Scene I
+	if !rs.skeletonBuilt && !hasActOrScene(fullText) && hasBodyContent(input) {
+		var titlePart string
+		if !hasTitle(rs.buffer.String()) {
+			titlePart = "The REPL Session.\n\n"
+		}
+		actPart := "Act I: The REPL Session.\nScene I: The REPL Session.\n\n"
+		existing := rs.buffer.String()
+		rs.buffer.Reset()
+		rs.buffer.WriteString(titlePart)
+		rs.buffer.WriteString(existing)
+		rs.buffer.WriteString(actPart)
 		rs.skeletonBuilt = true
 	}
 
-	// 2. Auto-declare newly discovered characters.
+	// ---- Auto-declaration splice (Step 5.3) ----
 	newChars := extractChars(input)
-	if len(newChars) > 0 {
+	var newlyDeclared []string
+	if len(newChars) > 0 && rs.skeletonBuilt {
+		// Populate declared from existing char decls in the buffer to
+		// avoid duplicating user-provided declarations.
+		for _, name := range extractDeclaredNames(rs.buffer.String()) {
+			rs.declared[strings.ToLower(name)] = true
+		}
+
 		var decls strings.Builder
 		for _, name := range newChars {
 			key := strings.ToLower(name)
 			if !rs.declared[key] {
 				rs.declared[key] = true
+				newlyDeclared = append(newlyDeclared, key)
 				_, _ = fmt.Fprintf(&decls, "%s, a REPL character.\n", name)
 			}
 		}
 		if decls.Len() > 0 {
 			declText := decls.String()
-			// Insert declarations after Title, before Act I.
 			buf := rs.buffer.Bytes()
 			actIdx := bytes.Index(bytes.ToLower(buf), []byte("act i"))
 			if actIdx >= 0 {
@@ -313,32 +474,42 @@ func (rs *replState) replayBlock(input string, sr *singleReader) error {
 		}
 	}
 
-	// 3. Append input to buffer.
+	// Append input to buffer.
 	rs.buffer.WriteString(input)
 	rs.buffer.WriteString("\n")
 
-	// 4. Start replay mode so the pipeline sees recorded bytes first, then
-	//    fresh stdin.
+	// Update phase.
+	newPhase := derivePhase(rs.buffer.String())
+	prevPhase := rs.phase
+	rs.phase = newPhase
+
+	// Pre-body submits accumulate in the buffer without validation.
+	// Only run the pipeline once we reach body phase.
+	if newPhase < phaseBody {
+		return nil
+	}
+
+	// Start replay mode so the pipeline sees recorded bytes first, then
+	// fresh stdin.
 	sr.replayMode()
 
-	// 5. Run the full pipeline on captured output.
+	// Run the full pipeline on captured output.
 	var captureOut bytes.Buffer
 	src := rs.buffer.String()
 	err := runPipeline(src, sr, &captureOut, "repl", rs.traceOut)
 	if err != nil {
-		// Rollback buffer and recorded inputs.
+		// Rollback buffer, recorded inputs, skeleton, and phase.
 		rs.buffer.Truncate(bufCheck)
 		sr.rollbackRecorded(recCheck)
-		for _, name := range newChars {
-			delete(rs.declared, strings.ToLower(name))
+		for _, key := range newlyDeclared {
+			delete(rs.declared, key)
 		}
-		if bufCheck == 0 {
-			rs.skeletonBuilt = false
-		}
+		rs.skeletonBuilt = prevSkeletonBuilt
+		rs.phase = prevPhase
 		return fmt.Errorf("error: %v", err)
 	}
 
-	// 6. Show output delta.
+	// Show output delta.
 	full := captureOut.String()
 	if len(full) > rs.lastOutputLen {
 		delta := full[rs.lastOutputLen:]
@@ -430,43 +601,24 @@ func (sr *singleReader) rollbackRecorded(cp int) {
 }
 
 // ErrIncomplete is returned by tryQuickParse when the block merely needs more
-// input (unclosed bracket, undeclared characters, missing stage entrance)
-// rather than containing a genuine syntax error.
+// input — unterminated brackets, unclosed expressions — rather than
+// containing a genuine syntax error.
 var ErrIncomplete = fmt.Errorf("incomplete input")
 
-// tryQuickParse runs the lexer and parser on block (wrapped in a minimal
-// skeleton) to decide whether the REPL should keep accumulating (incomplete)
-// or report the error immediately (genuine syntax error).
+// tryQuickParse runs a quick heuristic check on the pending block to decide
+// whether the REPL should keep accumulating (return ErrIncomplete) or report
+// the error immediately (any other non-nil error). Returns nil if the block
+// looks complete enough to submit.
 //
-// Decision algorithm (in order):
+// Criteria for ErrIncomplete:
+//  1. L002 (unterminated bracket) at EOF.
+//  2. Bracket token imbalance (more `[` than `]`).
+//  3. Open multi-line expression: the last non-blank line lacks a terminating
+//     . / ! / ?, and the line count since the last terminator is ≤ 40 (guard
+//     against unbounded growth).
 //
-//  1. LEX block directly.
-//     - L002 (unterminated bracket)          → INCOMPLETE (unclosed `[`)
-//     - any other lex error                  → GENUINE ERROR
-//
-//  2. BRACKET BALANCE on lexed tokens.
-//     - more LBRACKET than RBRACKET          → INCOMPLETE (unclosed `[`,
-//     backstop if lexer L002
-//     didn't fire)
-//
-//  3. FULL PARSE with skeleton (char X + [Enter X]).
-//     - S013 (missing Enter before dialogue) → INCOMPLETE (user hasn't
-//     entered chars yet)
-//     - any other parse error                → GENUINE ERROR
-//
-//  4. UNCONSUMED TOKENS (parser.Done()).
-//     - parser ignored trailing words        → GENUINE ERROR
-//     ("fsdgsdg", "@invalid", "[Exit] xyz")
-//
-//  5. SEMANTIC ANALYSIS on parsed program.
-//     - M001 (undeclared character)          → INCOMPLETE (REPL
-//     auto-declares on submit)
-//     - any other semantic error             → GENUINE ERROR
-//
-// Steps 1-2 are structurally separate from step 4: premature EOF (unclosed
-// bracket) is caught before parsing even begins, while trailing garbage that
-// passes the parser's lax statement loop is caught after parsing. They are
-// NOT proxies for each other.
+// All other errors (S-codes, M-codes, etc.) are treated as genuine and
+// reported immediately — the session continues at the next prompt.
 func tryQuickParse(block string) error {
 	if block == "" {
 		return nil
@@ -480,6 +632,7 @@ func tryQuickParse(block string) error {
 		}
 		return err
 	}
+	// 2. Bracket token imbalance.
 	balance := 0
 	for _, t := range tokens {
 		if t.Type == lexer.TokenLBracket {
@@ -493,65 +646,46 @@ func tryQuickParse(block string) error {
 		return ErrIncomplete
 	}
 
-	// 2. Wrap in a minimal program so the parser + analyzer reach the user's
-	//    actual input rather than failing early at S002 or S013.
-	src := "The REPL Session.\n\nX, a character.\n\nAct I: The REPL Session.\nScene I: The REPL Session.\n[Enter X]\n\n" + block + "\n"
-	tokens2, err := lexer.New(src).ScanTokens()
-	if err != nil {
-		return err
-	}
-	p := parser.New(tokens2)
-	prog, err := p.Parse()
-	if err != nil {
-		s := err.Error()
-		// S013 is expected when the block has dialogue but the Enter hasn't
-		// been typed yet.
-		if strings.Contains(s, "S013") {
-			return ErrIncomplete
-		}
-		return err
-	}
-	// Check for unconsumed tokens: the parser silently ignores stray words
-	// outside of stage directions and dialogue (e.g. "fsdgsdg" or "@invalid").
-	// Only top-level words (depth == 0) are considered — words inside valid
-	// `[...]` constructs like [Enter Romeo] are skipped via bracket-depth
-	// tracking.
-	if !p.Done() {
-		tokens3, _ := lexer.New(block).ScanTokens()
-		depth := 0
-		for _, tok := range tokens3 {
-			switch tok.Type {
-			case lexer.TokenLBracket:
-				depth++
-				continue
-			case lexer.TokenRBracket:
-				depth--
-				continue
-			}
-			if depth > 0 {
-				continue
-			}
-			if tok.Type == lexer.TokenWord &&
-				!strings.EqualFold(tok.Lexeme, "enter") &&
-				!strings.EqualFold(tok.Lexeme, "exit") &&
-				!strings.EqualFold(tok.Lexeme, "exeunt") {
-				return fmt.Errorf("error[S014]: unexpected text '%s'", tok.Lexeme)
-			}
-		}
-	}
-	// Run the semantic analyser so that M001 (undeclared character) and
-	// similar semantic-level errors are surfaced immediately.
-	res := semantic.New("(preview)", prog).Analyze(prog)
-	if !res.OK() {
-		s := res.Errors[0].Error()
-		// M001 (undeclared character) is expected when the user hasn't
-		// typed a declaration yet — the REPL auto-declares on submission.
-		if strings.Contains(s, "M001") {
-			return ErrIncomplete
-		}
-		return fmt.Errorf("%v", res.Errors[0])
+	// 3. Open multi-line expression: block doesn't end with a sentence
+	//    terminator and hasn't grown beyond the heuristic cap.
+	if isOpenExpression(block) {
+		return ErrIncomplete
 	}
 	return nil
+}
+
+// isOpenExpression returns true when the block looks like an incomplete
+// sentence: the last non-blank line does not end with . / ! / ?, and the
+// line count since the last terminator is ≤ 40.
+func isOpenExpression(text string) bool {
+	lines := strings.Split(text, "\n")
+	lastContent := ""
+	for i := len(lines) - 1; i >= 0; i-- {
+		if trimmed := strings.TrimSpace(lines[i]); trimmed != "" {
+			lastContent = trimmed
+			break
+		}
+	}
+	if lastContent == "" {
+		return false
+	}
+	switch lastContent[len(lastContent)-1] {
+	case '.', '!', '?':
+		return false
+	}
+	// Count non-blank lines since the last terminator.
+	count := 0
+	for i := len(lines) - 1; i >= 0; i-- {
+		trimmed := strings.TrimSpace(lines[i])
+		if trimmed == "" {
+			continue
+		}
+		count++
+		if last := trimmed[len(trimmed)-1]; last == '.' || last == '!' || last == '?' {
+			return false // found a terminator on a previous line
+		}
+	}
+	return count <= 40
 }
 
 // replCmd starts the interactive REPL.
@@ -619,6 +753,7 @@ with a blank line. The REPL maintains state across submissions.`,
 					rs.lastOutputLen = 0
 					rs.declared = map[string]bool{}
 					rs.skeletonBuilt = false
+					rs.phase = phaseTitle
 					continue
 				default:
 					_, _ = fmt.Fprintf(rs.err, "unknown command: %s\n", line)
