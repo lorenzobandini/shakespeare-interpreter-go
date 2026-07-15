@@ -1,0 +1,81 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  goreleaser:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    strategy:
+      matrix:
+        target:
+          - os: windows
+            arch: amd64
+            ext: .exe
+            artifact: spl-windows-x86_64.exe
+          - os: linux
+            arch: amd64
+            ext: ""
+            artifact: spl-linux-x86_64
+          - os: linux
+            arch: arm64
+            ext: ""
+            artifact: spl-linux-aarch64
+          - os: darwin
+            arch: amd64
+            ext: ""
+            artifact: spl-darwin-x86_64
+          - os: darwin
+            arch: arm64
+            ext: ""
+            artifact: spl-darwin-aarch64
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.26.5'
+          cache: true
+
+      - name: Build
+        run: |
+          VERSION="${{ github.ref_name }}"
+          COMMIT="${{ github.sha }}"
+          DATE="$(git log -1 --format=%cI)"
+          GOOS=${{ matrix.target.os }} GOARCH=${{ matrix.target.arch }} \
+            go build \
+            -ldflags="-s -w -X main.version=${VERSION} -X main.commit=${COMMIT:0:7} -X main.date=${DATE}" \
+            -o dist/${{ matrix.target.artifact }} \
+            cmd/spl/main.go
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target.artifact }}
+          path: dist/${{ matrix.target.artifact }}
+
+  create-release:
+    needs: goreleaser
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true
