@@ -19,6 +19,9 @@ type Lexer struct {
 
 // New creates a Lexer for the given source string.
 func New(src string) *Lexer {
+	if len(src) >= 3 && src[:3] == "\xEF\xBB\xBF" {
+		src = src[3:]
+	}
 	return &Lexer{
 		source: []byte(src),
 		line:   1,
