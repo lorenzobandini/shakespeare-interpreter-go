@@ -5,12 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [0.2.0] - 2026-07-15
 
 ### Added
 
+- Infinite-loop guard with `--max-steps` flag and R005 error code
+- S019 error code for unconditional goto failures
 - Cross-platform build tasks: `build:win`, `build:linux`, `build:mac`
+- Automated release workflow for cross-platform binaries (Windows x86_64, Linux x86_64/ARM64, macOS x86_64/ARM64)
 - CHANGELOG.md
+
+### Fixed
+
+- Two-pass validation for named Exeunt
+- Use int64 factorial and integer sqrt for precision
+- Pronoun resolution to include I, you, thou
+- Strip UTF-8 BOM in lexer
+- Stamp filename on semantic errors and fix Analyze reuse contract
 
 ### Changed
 
