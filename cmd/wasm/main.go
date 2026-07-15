@@ -39,7 +39,7 @@ func execute(this js.Value, args []js.Value) any {
 		return map[string]any{"error": fmt.Sprintf("parser error: %v", err)}
 	}
 
-	res := semantic.New("input.spl", prog).Analyze(prog)
+	res := semantic.New("input.spl", prog).Analyze()
 	if !res.OK() {
 		var b strings.Builder
 		for _, e := range res.Errors {

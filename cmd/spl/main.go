@@ -22,8 +22,9 @@ import (
 
 // Global flags.
 var (
-	debugFlag bool
-	traceFlag bool
+	debugFlag    bool
+	traceFlag    bool
+	maxStepsFlag int
 )
 
 // Build info — set via ldflags.
@@ -176,7 +177,7 @@ var runCmd = &cobra.Command{
 		if err != nil {
 			return fmt.Errorf("cannot read file %q: %w", args[0], err)
 		}
-		return runPipeline(string(src), os.Stdin, cmd.OutOrStdout(), args[0], cmd.ErrOrStderr())
+		return runPipeline(string(src), cmd.InOrStdin(), cmd.OutOrStdout(), args[0], cmd.ErrOrStderr(), maxStepsFlag)
 	},
 }
 
@@ -184,25 +185,25 @@ var runCmd = &cobra.Command{
 // Shared pipeline runner (used by runCmd and the REPL)
 // ---------------------------------------------------------------------------
 
-func runPipeline(src string, in io.Reader, out io.Writer, filename string, traceOut io.Writer) error {
+func runPipeline(src string, in io.Reader, out io.Writer, filename string, traceOut io.Writer, maxSteps int) error {
 	if traceFlag {
 		_, _ = fmt.Fprintln(traceOut, "--- TOKENS ---")
 	}
 	tokens, err := lexer.New(src).ScanTokens()
 	if err != nil {
-		return fmt.Errorf("%v", err)
+		return fmt.Errorf("%w", err)
 	}
 	if traceFlag {
 		_, _ = fmt.Fprintln(traceOut, "--- AST ---")
 	}
 	prog, err := parser.New(tokens).Parse()
 	if err != nil {
-		return fmt.Errorf("%v", err)
+		return fmt.Errorf("%w", err)
 	}
 	if traceFlag {
 		_, _ = fmt.Fprintln(traceOut, "--- SEMANTIC ---")
 	}
-	res := semantic.New(filename, prog).Analyze(prog)
+	res := semantic.New(filename, prog).Analyze()
 	if !res.OK() {
 		var b strings.Builder
 		for _, e := range res.Errors {
@@ -214,8 +215,8 @@ func runPipeline(src string, in io.Reader, out io.Writer, filename string, trace
 	if traceFlag {
 		_, _ = fmt.Fprintln(traceOut, "--- EXECUTE ---")
 	}
-	if err := runtime.Execute(prog, res, in, out, filename); err != nil {
-		return fmt.Errorf("%v", err)
+	if err := runtime.ExecuteWithLimit(prog, res, in, out, filename, maxSteps); err != nil {
+		return fmt.Errorf("%w", err)
 	}
 	return nil
 }
@@ -496,7 +497,7 @@ func (rs *replState) replayBlock(input string, sr *singleReader) error {
 	// Run the full pipeline on captured output.
 	var captureOut bytes.Buffer
 	src := rs.buffer.String()
-	err := runPipeline(src, sr, &captureOut, "repl", rs.traceOut)
+	err := runPipeline(src, sr, &captureOut, "repl", rs.traceOut, 0)
 	if err != nil {
 		// Rollback buffer, recorded inputs, skeleton, and phase.
 		rs.buffer.Truncate(bufCheck)
@@ -710,20 +711,17 @@ with a blank line. The REPL maintains state across submissions.`,
 		// Handle SIGINT gracefully.
 		sigCh := make(chan os.Signal, 1)
 		signal.Notify(sigCh, os.Interrupt)
-		done := make(chan struct{}, 1)
-		go func() {
-			select {
-			case <-sigCh:
-				_, _ = fmt.Fprintln(rs.err, "^C")
-				os.Exit(0)
-			case <-done:
-			}
-		}()
-		defer close(done)
+		defer signal.Stop(sigCh)
 
 		var block bytes.Buffer
 
 		for {
+			select {
+			case <-sigCh:
+				_, _ = fmt.Fprintln(rs.err, "^C")
+				return nil
+			default:
+			}
 			if block.Len() == 0 {
 				_, _ = fmt.Fprint(rs.err, "spl> ")
 			} else {
@@ -797,6 +795,7 @@ with a blank line. The REPL maintains state across submissions.`,
 func init() {
 	rootCmd.PersistentFlags().BoolVar(&debugFlag, "debug", false, "enable debug logging")
 	rootCmd.PersistentFlags().BoolVar(&traceFlag, "trace", false, "enable pipeline tracing")
+	rootCmd.PersistentFlags().IntVar(&maxStepsFlag, "max-steps", 1000000, "maximum execution steps (0 = unlimited)")
 	rootCmd.Version = version
 	rootCmd.AddCommand(tokensCmd, astCmd, runCmd, versionCmd, aboutCmd, replCmd)
 }

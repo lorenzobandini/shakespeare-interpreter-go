@@ -61,7 +61,7 @@ func TestNewEnv(t *testing.T) {
 	if err != nil {
 		t.Fatalf("parse error: %v", err)
 	}
-	res := semantic.New("test.spl", prog).Analyze(prog)
+	res := semantic.New("test.spl", prog).Analyze()
 	if !res.OK() {
 		t.Fatalf("semantic errors: %v", res.Errors)
 	}

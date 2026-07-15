@@ -284,7 +284,7 @@ func analyzeFile(t *testing.T, path string) Result {
 		t.Fatalf("parse error for %s: %v", path, err)
 	}
 	a := New(path, prog)
-	return a.Analyze(prog)
+	return a.Analyze()
 }
 
 func codeSet(errs []SemanticError) map[string]bool {
@@ -308,7 +308,7 @@ func TestAnalyzeEmptyScenesDefensive(t *testing.T) {
 		},
 	}
 	a := New("test", prog)
-	res := a.Analyze(prog)
+	res := a.Analyze()
 	if len(res.Errors) != 1 || res.Errors[0].Code != "M008" {
 		t.Fatalf("expected one M008 error, got %v", res.Errors)
 	}

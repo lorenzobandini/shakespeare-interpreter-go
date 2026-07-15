@@ -49,7 +49,7 @@ func runFixture(t *testing.T, name, stdin string) (string, error) {
 	if err != nil {
 		t.Fatalf("parse %s: %v", name, err)
 	}
-	res := semantic.New(name+".spl", prog).Analyze(prog)
+	res := semantic.New(name+".spl", prog).Analyze()
 	if !res.OK() {
 		t.Fatalf("semantic %s: %v", name, res.Errors)
 	}

@@ -20,7 +20,7 @@ func TestFlatten(t *testing.T) {
 	if err != nil {
 		t.Fatalf("parse error: %v", err)
 	}
-	res := semantic.New("test", prog).Analyze(prog)
+	res := semantic.New("test", prog).Analyze()
 	if !res.OK() {
 		t.Fatalf("semantic errors: %v", res.Errors)
 	}
@@ -77,7 +77,7 @@ func TestExecuteLinear(t *testing.T) {
 	if err != nil {
 		t.Fatalf("parse error: %v", err)
 	}
-	res := semantic.New("test", prog).Analyze(prog)
+	res := semantic.New("test", prog).Analyze()
 	if !res.OK() {
 		t.Fatalf("semantic errors: %v", res.Errors)
 	}
@@ -107,7 +107,7 @@ func TestExecuteDivZero(t *testing.T) {
 	if err != nil {
 		t.Fatalf("parse error: %v", err)
 	}
-	res := semantic.New("test", prog).Analyze(prog)
+	res := semantic.New("test", prog).Analyze()
 	if !res.OK() {
 		t.Fatalf("semantic errors: %v", res.Errors)
 	}
@@ -138,7 +138,7 @@ func TestExecuteEntry(t *testing.T) {
 	if err != nil {
 		t.Fatalf("parse error: %v", err)
 	}
-	res := semantic.New("test", prog).Analyze(prog)
+	res := semantic.New("test", prog).Analyze()
 	if !res.OK() {
 		t.Fatalf("semantic errors: %v", res.Errors)
 	}

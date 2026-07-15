@@ -8,8 +8,10 @@ import (
 )
 
 // Analyzer performs semantic analysis on a parsed SPL AST.
+// Create via New and call Analyze exactly once.
 type Analyzer struct {
 	filename   string
+	prog       *parser.Program
 	symbols    SymbolTable
 	acts       ActRegistry
 	currentAct *parser.Act
@@ -30,15 +32,22 @@ func (r Result) OK() bool {
 }
 
 // New creates an Analyzer for the given program.
+// The Analyzer is not reusable; call New for each program.
 func New(filename string, prog *parser.Program) *Analyzer {
 	symbols, symErrs := newSymbolTable(prog.Characters)
 	acts := buildActRegistry(prog.Acts)
 	return &Analyzer{
 		filename: filename,
+		prog:     prog,
 		symbols:  symbols,
 		acts:     acts,
 		errs:     symErrs,
 	}
+}
+
+func (a *Analyzer) addErr(se SemanticError) {
+	se.Filename = a.filename
+	a.errs = append(a.errs, se)
 }
 
 func (a *Analyzer) checkDeclared(name string, line, col int) *SemanticError {
@@ -51,17 +60,17 @@ func (a *Analyzer) checkDeclared(name string, line, col int) *SemanticError {
 	return nil
 }
 
-// Analyze runs the full semantic analysis pass on the program.
-func (a *Analyzer) Analyze(prog *parser.Program) Result {
-	for i := range prog.Acts {
-		act := &prog.Acts[i]
+// Analyze performs semantic analysis on the program passed to New.
+func (a *Analyzer) Analyze() Result {
+	for i := range a.prog.Acts {
+		act := &a.prog.Acts[i]
 		a.currentAct = act
 		slog.Debug("act begin", "roman", act.RomanNumeral)
 
 		// D1: stage persists across acts — do NOT clear.
 
 		if len(act.Scenes) == 0 {
-			a.errs = append(a.errs, errNoSceneInAct(act.RomanNumeral, act.Line, act.Col))
+			a.addErr(errNoSceneInAct(act.RomanNumeral, act.Line, act.Col))
 		}
 
 		a.sceneReg = buildSceneRegistry(act)
@@ -77,11 +86,17 @@ func (a *Analyzer) analyzeSceneStatements(stmts []parser.Statement) {
 	for _, stmt := range stmts {
 		switch s := stmt.(type) {
 		case parser.EnterStmt:
-			a.errs = append(a.errs, a.stage.Enter(s.Characters, a.symbols, s.Line, s.Col)...)
+			for _, e := range a.stage.Enter(s.Characters, a.symbols, s.Line, s.Col) {
+				a.addErr(e)
+			}
 		case parser.ExitStmt:
-			a.errs = append(a.errs, a.stage.Exit(s.Character, a.symbols, s.Line, s.Col)...)
+			for _, e := range a.stage.Exit(s.Character, a.symbols, s.Line, s.Col) {
+				a.addErr(e)
+			}
 		case parser.ExeuntStmt:
-			a.errs = append(a.errs, a.stage.Exeunt(s.Characters, a.symbols, s.Line, s.Col)...)
+			for _, e := range a.stage.Exeunt(s.Characters, a.symbols, s.Line, s.Col) {
+				a.addErr(e)
+			}
 		case parser.Dialogue:
 			a.analyzeDialogue(s)
 		}
@@ -95,10 +110,10 @@ type dialogCtx struct {
 
 func (a *Analyzer) analyzeDialogue(d parser.Dialogue) {
 	if err := a.checkDeclared(d.Speaker, d.Line, d.Col); err != nil {
-		a.errs = append(a.errs, *err)
+		a.addErr(*err)
 	}
-	if !a.stage.Has(d.Speaker) {
-		a.errs = append(a.errs, errCharacterNotOnStage(d.Speaker, d.Line, d.Col))
+	if !a.stage.Has(d.Speaker) { // only speaker-not-on-stage checked; listener ambiguity silently resolves to self-talk
+		a.addErr(errCharacterNotOnStage(d.Speaker, d.Line, d.Col))
 	}
 
 	listener, ok := a.stage.Listener(d.Speaker)
@@ -139,7 +154,7 @@ func (a *Analyzer) analyzeExpr(e parser.Expr, ctx dialogCtx) {
 	case parser.ConstExpr:
 	case parser.CharRefExpr:
 		if err := a.checkDeclared(ex.Name, ex.Line, ex.Col); err != nil {
-			a.errs = append(a.errs, *err)
+			a.addErr(*err)
 		}
 		slog.Debug("charref", "name", ex.Name, "on_stage", a.stage.Has(ex.Name))
 	case parser.PronounExpr:
@@ -155,11 +170,11 @@ func (a *Analyzer) resolveGoto(target, kind string, line, col int) {
 	switch kind {
 	case "scene":
 		if _, ok := a.sceneReg.Resolve(strings.ToLower(target)); !ok {
-			a.errs = append(a.errs, errUndefinedScene(target, "scene", a.currentAct.RomanNumeral, line, col))
+			a.addErr(errUndefinedScene(target, "scene", a.currentAct.RomanNumeral, line, col))
 		}
 	case "act":
 		if _, ok := a.acts.Resolve(strings.ToLower(target)); !ok {
-			a.errs = append(a.errs, errUndefinedScene(target, "act", "", line, col))
+			a.addErr(errUndefinedScene(target, "act", "", line, col))
 		}
 	}
 }
