@@ -124,6 +124,7 @@ func (s *Stage) Exeunt(chars []string, syms SymbolTable, line, col int) []Semant
 		return nil
 	}
 	var errs []SemanticError
+	// First pass: validate all targets.
 	for _, c := range chars {
 		key := strings.ToLower(c)
 		if !syms.Has(key) {
@@ -134,15 +135,19 @@ func (s *Stage) Exeunt(chars []string, syms SymbolTable, line, col int) []Semant
 			errs = append(errs, errExitNotOnStage(c, line, col))
 			continue
 		}
+	}
+	if len(errs) > 0 {
+		return errs
+	}
+	// Second pass: remove all validated targets.
+	for _, c := range chars {
+		key := strings.ToLower(c)
 		for i, n := range s.names {
 			if strings.ToLower(n) == key {
 				s.names = append(s.names[:i], s.names[i+1:]...)
 				break
 			}
 		}
-	}
-	if len(errs) > 0 {
-		return errs
 	}
 	slog.Debug("stage exeunt named", "chars", chars, "size", s.Size())
 	return nil
