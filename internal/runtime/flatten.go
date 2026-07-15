@@ -49,7 +49,16 @@ func (e *env) flatten(prog *parser.Program) {
 
 func (e *env) runLoop() error {
 	pc := 0
+	steps := 0
 	for pc < len(e.instrs) {
+		if e.maxSteps > 0 {
+			steps++
+			if steps > e.maxSteps {
+				i := e.instrs[pc]
+				return errStepLimitExceeded(i.actRoman, i.sceneRoman, 0, 0)
+			}
+		}
+
 		i := e.instrs[pc]
 
 		if i.actRoman != e.currentActRoman {

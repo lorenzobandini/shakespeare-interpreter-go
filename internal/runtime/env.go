@@ -24,6 +24,7 @@ type env struct {
 	currentActRoman   string
 	currentSceneRoman string
 	filename          string
+	maxSteps          int
 }
 
 // NewEnv creates a runtime environment from a parsed program and semantic result.
@@ -48,12 +49,23 @@ func NewEnv(prog *parser.Program, res semantic.Result, in io.Reader, out io.Writ
 	return e
 }
 
-// Execute runs the full SPL program: flatten to instructions then evaluate.
-func Execute(prog *parser.Program, res semantic.Result, in io.Reader, out io.Writer, filename string) error {
+// Execute runs the full SPL program with default max steps (unlimited).
+func Execute(prog *parser.Program, res semantic.Result, in io.Reader, out io.Writer, filename string) (err error) {
+	return ExecuteWithLimit(prog, res, in, out, filename, 0)
+}
+
+// ExecuteWithLimit runs the full SPL program with a step limit. 0 = unlimited.
+func ExecuteWithLimit(prog *parser.Program, res semantic.Result, in io.Reader, out io.Writer, filename string, maxSteps int) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = RuntimeError{Code: "R000", Msg: fmt.Sprintf("internal: %v", r)}
+		}
+	}()
 	if !res.OK() {
 		return fmt.Errorf("semantic analysis failed: %d error(s)", len(res.Errors))
 	}
 	e := NewEnv(prog, res, in, out, filename)
+	e.maxSteps = maxSteps
 	e.flatten(prog)
 	return e.runLoop()
 }

@@ -44,3 +44,10 @@ func errIntegerOverflow(op string, line, col int) RuntimeError {
 		Msg: fmt.Sprintf("integer overflow in '%s'", op),
 	}
 }
+
+func errStepLimitExceeded(actRoman, sceneRoman string, line, col int) RuntimeError {
+	return RuntimeError{
+		Code: "R005", Line: line, Col: col,
+		Msg: fmt.Sprintf("step limit exceeded at Act %s, Scene %s", actRoman, sceneRoman),
+	}
+}

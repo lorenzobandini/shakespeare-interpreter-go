@@ -43,6 +43,7 @@ Produced by `internal/parser`. Valid tokens in invalid arrangement.
 | `S016` | InvalidIf | `If so, let us proceed to scene` (missing scene) | `expected scene or act number after 'proceed to'` |
 | `S017` | InvalidComparative | `Am I good you?` (missing `as`/`than`) | `expected comparative phrase (e.g., 'as good as', 'better than')` |
 | `S018` | InvalidStackOp | `Remember .` (no expression) or `Recall your fate` (no `.`) | `expected expression after 'Remember'` / `expected '.' after 'Recall'` |
+| `S019` | InvalidGoto | `Let us proceed to` with missing scene | `expected scene or act number after 'proceed to'` |
 
 > **Note on S012 (Exeunt):** Both bare `[Exeunt]` (exits all characters on stage) and
 > `[Exeunt A and B]` (exits the named characters) are valid SPL. S012 fires only for
@@ -76,6 +77,7 @@ Produced by `internal/runtime` during execution.
 | `R002` | InputNotANumber | `Listen to your heart.` but stdin is "hello" | `expected a number, got 'hello'` |
 | `R003` | InputEOF | `Open your mind.` but stdin is exhausted | `unexpected end of input` |
 | `R004` | IntegerOverflow | Value exceeds int bounds | `integer overflow in 'factorial'` |
+| `R005` | StepLimitExceeded | `If so, …` loop with no termination | `step limit exceeded at Act I, Scene II` |
 
 **Runtime notes:**
 - R001 fires on both `quotient` and `remainder` binary operations when the divisor evaluates to zero.
