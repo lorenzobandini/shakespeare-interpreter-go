@@ -3,7 +3,6 @@ package parser
 import "strings"
 
 // Curated SPL word classification. ~80 entries. Unknown nouns default to neutral (+1).
-// ponytail: minimal curated set; unknown words fall through to defaults (noun=+1, adj=count, comp=positive).
 
 var negativeNouns = map[string]bool{
 	"coward": true, "liar": true, "fool": true, "pig": true, "blister": true,
@@ -46,11 +45,11 @@ var possessivePronouns = map[string]bool{
 }
 
 var speakerPronouns = map[string]bool{
-	"me": true, "myself": true,
+	"me": true, "myself": true, "i": true,
 }
 
 var listenerPronouns = map[string]bool{
-	"thyself": true, "yourself": true,
+	"thyself": true, "yourself": true, "you": true, "thou": true,
 }
 
 var articles = map[string]bool{
