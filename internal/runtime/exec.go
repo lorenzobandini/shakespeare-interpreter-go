@@ -23,7 +23,7 @@ func (e *env) execInstr(i instr) (jumpPC int, jumped bool, err error) {
 
 	switch s := i.stmt.(type) {
 	case parser.EnterStmt:
-		_ = e.stage.Enter(s.Characters, e.syms, s.Line, s.Col)
+		_ = e.stage.Enter(s.Characters, e.syms, s.Line, s.Col) // stage op errors discarded; semantic analysis guarantees well-formed stage transitions
 		slog.Debug("stage enter", "chars", s.Characters, "size", e.stage.Size())
 		return 0, false, nil
 

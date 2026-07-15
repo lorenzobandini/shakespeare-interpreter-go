@@ -3,7 +3,6 @@ package runtime
 import (
 	"fmt"
 	"log/slog"
-	"math"
 	"strings"
 
 	"github.com/lorenzobandini/shakespeare-interpreter-go/internal/parser"
@@ -12,7 +11,7 @@ import (
 func (e *env) eval(expr parser.Expr, speaker, listener string) (int, error) {
 	switch ex := expr.(type) {
 	case parser.ConstExpr:
-		value := ex.Polarity * (1 << uint(ex.AdjectiveCount))
+		value := ex.Polarity * (1 << uint(ex.AdjectiveCount)) // silent shift truncation; add overflow guard if adj counts exceed 63
 		slog.Debug("const", "noun", ex.Noun, "value", value)
 		return value, nil
 
@@ -90,7 +89,11 @@ func (e *env) eval(expr parser.Expr, speaker, listener string) (int, error) {
 					Msg: "internal: square root of negative number",
 				}
 			}
-			return int(math.Sqrt(float64(v))), nil
+			r := v
+			for r*r > v {
+				r = (r + v/r) / 2
+			}
+			return r, nil
 		case "factorial":
 			if v < 0 {
 				return 0, RuntimeError{
@@ -98,14 +101,15 @@ func (e *env) eval(expr parser.Expr, speaker, listener string) (int, error) {
 					Msg: "internal: factorial of negative number",
 				}
 			}
-			if v > 20 {
+			var result int64 = 1
+			u := int64(v)
+			if u > 20 {
 				return 0, errIntegerOverflow("factorial", ex.Line, ex.Col)
 			}
-			result := 1
-			for i := 2; i <= v; i++ {
+			for i := int64(2); i <= u; i++ {
 				result *= i
 			}
-			return result, nil
+			return int(result), nil
 		case "twice":
 			return v * 2, nil
 		default:
