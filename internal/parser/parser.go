@@ -618,7 +618,7 @@ func (p *Parser) parseRememberStmt() (Statement, error) {
 	if err != nil {
 		return nil, err
 	}
-	_ = term
+	_ = term // terminator not semantically relevant for stack ops
 	return RememberStmt{Expr: expr, Line: firstLine, Col: firstCol}, nil
 }
 
@@ -766,7 +766,7 @@ func (p *Parser) parseGotoStmt() (Statement, error) {
 	firstCol := p.peek().Col
 	p.advance() // consume "let"
 	if !p.matchWord("us") {
-		return nil, errInvalidIf(firstLine, firstCol)
+		return nil, errInvalidGoto(firstLine, firstCol)
 	}
 	target, targetKind, err := p.parseGotoTarget(firstLine, firstCol)
 	if err != nil {
@@ -777,10 +777,10 @@ func (p *Parser) parseGotoStmt() (Statement, error) {
 
 func (p *Parser) parseGotoTarget(line, col int) (string, string, error) {
 	if !p.matchWord("proceed") && !p.matchWord("return") {
-		return "", "", errInvalidIf(line, col)
+		return "", "", errInvalidGoto(line, col)
 	}
 	if !p.matchWord("to") {
-		return "", "", errInvalidIf(line, col)
+		return "", "", errInvalidGoto(line, col)
 	}
 	var targetKind string
 	if p.matchWord("scene") {
@@ -788,14 +788,14 @@ func (p *Parser) parseGotoTarget(line, col int) (string, string, error) {
 	} else if p.matchWord("act") {
 		targetKind = "act"
 	} else {
-		return "", "", errInvalidIf(line, col)
+		return "", "", errInvalidGoto(line, col)
 	}
 	if p.peek().Type != lexer.TokenWord {
-		return "", "", errInvalidIf(line, col)
+		return "", "", errInvalidGoto(line, col)
 	}
 	target := p.advance().Lexeme
 	if !p.match(lexer.TokenPeriod) {
-		return "", "", errInvalidIf(line, col)
+		return "", "", errInvalidGoto(line, col)
 	}
 	return target, targetKind, nil
 }

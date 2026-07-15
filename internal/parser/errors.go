@@ -74,6 +74,10 @@ func errInvalidIf(line, col int) ParseError {
 	return ParseError{Code: "S016", Line: line, Col: col, Msg: "expected 'If so' or 'If not' followed by 'let us proceed/return to scene/act N'"}
 }
 
+func errInvalidGoto(line, col int) ParseError {
+	return ParseError{Code: "S019", Line: line, Col: col, Msg: "expected scene or act number after 'proceed to'"}
+}
+
 func errInvalidComparative(got string, line, col int) ParseError {
 	return ParseError{Code: "S017", Line: line, Col: col, Msg: fmt.Sprintf("expected comparative phrase (e.g., 'as good as', 'better than'), got '%s'", got)}
 }
