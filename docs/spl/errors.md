@@ -73,6 +73,7 @@ Produced by `internal/runtime` during execution.
 
 | Code | Name | Example | Message |
 |------|------|---------|---------|
+| `R000` | InternalGuard | Internal guard (speaker not on stage, negative sqrt, negative factorial, label resolution failure, recover wrap) | `internal: speaker not on stage` |
 | `R001` | DivisionByZero | `the quotient between Hamlet and a coward` (Juliet = 0) | `division by zero at Act I, Scene II` |
 | `R002` | InputNotANumber | `Listen to your heart.` but stdin is "hello" | `expected a number, got 'hello'` |
 | `R003` | InputEOF | `Open your mind.` but stdin is exhausted | `unexpected end of input` |
@@ -80,6 +81,7 @@ Produced by `internal/runtime` during execution.
 | `R005` | StepLimitExceeded | `If so, …` loop with no termination | `step limit exceeded at Act I, Scene II` |
 
 **Runtime notes:**
+- R000 is an internal guard — it signals an interpreter invariant violation (e.g., speaker not on stage, negative sqrt/factorial, malformed label maps) and is surfaced only when the runtime encounters an unrecoverable internal inconsistency. Not triggered by user-authored SPL programs under normal conditions.
 - R001 fires on both `quotient` and `remainder` binary operations when the divisor evaluates to zero.
 - R004 currently fires only for `factorial` of values > 20 (the one operation where overflow is detectable and catastrophic). Other overflows silently wrap per R-D6.
 
