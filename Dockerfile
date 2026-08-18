@@ -1,5 +1,5 @@
 # Stage 1: toolchain — pinned dev tools + source + dependencies
-FROM golang:1.26.5-alpine AS toolchain
+FROM golang:1.26.6-alpine AS toolchain
 
 RUN apk add --no-cache curl ca-certificates git build-base
 
